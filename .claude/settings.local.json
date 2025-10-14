@@ -9,7 +9,9 @@
       "Bash(npm run build)",
       "Bash(npm uninstall:*)",
       "Bash(node:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
