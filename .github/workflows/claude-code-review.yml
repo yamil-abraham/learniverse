@@ -1,0 +1,189 @@
+name: Claude AI Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - '**.ts'
+      - '**.tsx'
+      - '**.js'
+      - '**.jsx'
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  code-review:
+    runs-on: ubuntu-latest
+    name: Claude Code Review
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v41
+        with:
+          files: |
+            **.ts
+            **.tsx
+            **.js
+            **.jsx
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run TypeScript type check
+        id: typecheck
+        run: npm run type-check
+        continue-on-error: true
+
+      - name: Run ESLint
+        id: lint
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Prepare review context
+        id: context
+        run: |
+          echo "## Changed Files" > review-context.md
+          echo "${{ steps.changed-files.outputs.all_changed_files }}" >> review-context.md
+          echo "" >> review-context.md
+          echo "## Type Check Status" >> review-context.md
+          echo "Exit code: ${{ steps.typecheck.outcome }}" >> review-context.md
+          echo "" >> review-context.md
+          echo "## Lint Status" >> review-context.md
+          echo "Exit code: ${{ steps.lint.outcome }}" >> review-context.md
+
+      - name: Claude Code Review
+        uses: actions/github-script@v7
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+
+            // Verificar si existe la API key
+            if (!process.env.ANTHROPIC_API_KEY) {
+              console.log('⚠️ ANTHROPIC_API_KEY no configurada. Saltando code review.');
+              return;
+            }
+
+            const changedFiles = '${{ steps.changed-files.outputs.all_changed_files }}'.split(' ');
+
+            if (changedFiles.length === 0 || changedFiles[0] === '') {
+              console.log('No hay archivos de código para revisar.');
+              return;
+            }
+
+            // Leer archivos modificados
+            let filesContent = '';
+            for (const file of changedFiles.slice(0, 5)) { // Limitar a 5 archivos
+              try {
+                const content = fs.readFileSync(file, 'utf8');
+                filesContent += `\n\n### ${file}\n\`\`\`typescript\n${content.slice(0, 2000)}\n\`\`\`\n`;
+              } catch (e) {
+                console.log(`No se pudo leer ${file}`);
+              }
+            }
+
+            // Llamar a Claude API
+            const response = await fetch('https://api.anthropic.com/v1/messages', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': process.env.ANTHROPIC_API_KEY,
+                'anthropic-version': '2023-06-01'
+              },
+              body: JSON.stringify({
+                model: 'claude-3-5-sonnet-20241022',
+                max_tokens: 2000,
+                messages: [{
+                  role: 'user',
+                  content: `Eres un code reviewer experto en TypeScript, React y Next.js.
+
+Revisa los siguientes cambios de código para el proyecto Learniverse (plataforma educativa con Next.js 14, React Three Fiber, TypeScript).
+
+Contexto del proyecto:
+- Next.js 14 con App Router
+- TypeScript strict mode
+- React 18 + Three.js para 3D
+- Vercel Postgres + OpenAI API
+
+Archivos modificados:
+${filesContent}
+
+Proporciona un code review conciso enfocado en:
+1. ✅ Aspectos positivos
+2. 🐛 Bugs potenciales
+3. 🎯 Mejoras de performance
+4. 🔒 Problemas de seguridad
+5. 📝 Sugerencias de mejora
+
+Formato: Markdown, máximo 1000 palabras, enfócate en lo más importante.`
+                }]
+              })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+              console.error('Error de Claude API:', data);
+              return;
+            }
+
+            const review = data.content[0].text;
+
+            // Comentar en el PR
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `## 🤖 Claude AI Code Review
+
+${review}
+
+---
+*Review automático generado por Claude AI*
+*TypeCheck: ${{ steps.typecheck.outcome }} | Lint: ${{ steps.lint.outcome }}*`
+            });
+
+      - name: Comment if API key missing
+        if: ${{ !env.ANTHROPIC_API_KEY }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `## ⚙️ Configuración de Claude Code Review
+
+Para habilitar code reviews automáticos con Claude AI:
+
+1. Ve a **Settings** → **Secrets and variables** → **Actions**
+2. Crea un nuevo secret: \`ANTHROPIC_API_KEY\`
+3. Obtén tu API key en: https://console.anthropic.com/
+
+**Características:**
+- ✅ Review automático de código TypeScript/React
+- 🐛 Detección de bugs potenciales
+- 🎯 Sugerencias de performance
+- 🔒 Análisis de seguridad
+
+Una vez configurado, los PRs futuros recibirán reviews automáticos.`
+            });
