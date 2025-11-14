@@ -17,7 +17,7 @@ const registerSchema = z.object({
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   role: z.enum(['student', 'teacher'], {
-    errorMap: () => ({ message: 'El rol debe ser student o teacher' }),
+    message: 'El rol debe ser student o teacher',
   }),
   grade: z.number().int().min(4).max(5).optional(),
   school: z.string().optional(),
