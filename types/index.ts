@@ -86,3 +86,41 @@ export interface GameState {
   timeElapsed: number
   lives: number
 }
+
+// Tipos de autenticación
+export interface AuthUser {
+  id: string
+  email: string
+  name: string
+  role: UserRole
+  studentId?: string
+  teacherId?: string
+  level?: number
+  experience?: number
+}
+
+export interface SessionUser {
+  id: string
+  email: string
+  name: string
+  role: UserRole
+  studentId?: string
+  teacherId?: string
+  level?: number
+  experience?: number
+}
+
+export interface LoginFormData {
+  email: string
+  password: string
+}
+
+export interface RegisterFormData {
+  email: string
+  password: string
+  confirmPassword: string
+  name: string
+  role: UserRole
+  grade?: number
+  school?: string
+}
