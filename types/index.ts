@@ -68,14 +68,41 @@ export interface ActivityContent {
   hints?: string[]
 }
 
-// Avatar 3D
+// Avatar 3D Configuration
 export interface AvatarConfig {
+  // Body
+  skinColor: string
   bodyColor: string
-  hairStyle: string
+  shoeColor: string
+
+  // Head
+  hairStyle: 'short' | 'long' | 'curly' | 'spiky' | 'bald'
   hairColor: string
   eyeColor: string
-  accessories: string[]
-  clothing: string
+
+  // Accessories
+  hatStyle: 'none' | 'cap' | 'beanie' | 'crown'
+  showGlasses: boolean
+
+  // Clothing
+  shirtStyle: 'tshirt' | 'hoodie' | 'vest'
+
+  // Animation
+  idleAnimation: 'bounce' | 'wave' | 'spin'
+}
+
+// Default avatar configuration
+export const DEFAULT_AVATAR_CONFIG: AvatarConfig = {
+  skinColor: '#f4c2a0',
+  bodyColor: '#3b82f6',
+  shoeColor: '#1e293b',
+  hairStyle: 'short',
+  hairColor: '#4a3c28',
+  eyeColor: '#000000',
+  hatStyle: 'none',
+  showGlasses: false,
+  shirtStyle: 'tshirt',
+  idleAnimation: 'bounce'
 }
 
 // Configuración del juego
