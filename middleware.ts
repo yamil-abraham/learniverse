@@ -11,8 +11,8 @@ export default withAuth(
     const token = req.nextauth.token
     const path = req.nextUrl.pathname
 
-    // Si el usuario está autenticado y trata de acceder a login o register
-    if (token && (path === '/login' || path === '/register')) {
+    // Si el usuario está autenticado y trata de acceder a login, register o raíz
+    if (token && (path === '/login' || path === '/register' || path === '/')) {
       // Redirigir al dashboard apropiado según su rol
       if (token.role === 'student') {
         return NextResponse.redirect(new URL('/dashboard/student', req.url))

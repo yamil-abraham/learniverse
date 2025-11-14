@@ -25,6 +25,7 @@
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.3",
     "next": "^14.2.33",
     "next-auth": "^4.24.13",
     "openai": "^6.3.0",

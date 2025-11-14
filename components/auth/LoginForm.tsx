@@ -51,9 +51,8 @@ export default function LoginForm() {
         return
       }
 
-      // Redirigir al dashboard correspondiente
-      // El middleware se encargará de redirigir al dashboard correcto
-      router.push('/dashboard/student')
+      // Redirigir a la raíz y dejar que el middleware redirija al dashboard correcto
+      router.push('/')
       router.refresh()
     } catch (error) {
       console.error('Error during login:', error)
