@@ -7,12 +7,22 @@
 
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import type { MathActivityType, DifficultyLevel } from '@/types'
+
+interface Recommendation {
+  activityType: MathActivityType
+  difficulty: DifficultyLevel
+  reason: string
+  confidence: number
+}
 
 export default function StudentDashboard() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const [recommendation, setRecommendation] = useState<Recommendation | null>(null)
+  const [isLoadingRecommendation, setIsLoadingRecommendation] = useState(false)
 
   useEffect(() => {
     // Redirigir si no es estudiante
@@ -20,6 +30,65 @@ export default function StudentDashboard() {
       router.push('/login')
     }
   }, [session, status, router])
+
+  // Phase 4 Adaptive: Load recommendation
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user?.role === 'student') {
+      loadRecommendation()
+    }
+  }, [status, session])
+
+  const loadRecommendation = async () => {
+    setIsLoadingRecommendation(true)
+    try {
+      const response = await fetch('/api/ai/recommend-activity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          setRecommendation(data.recommendation)
+        }
+      }
+    } catch (error) {
+      console.error('Error loading recommendation:', error)
+    } finally {
+      setIsLoadingRecommendation(false)
+    }
+  }
+
+  const getActivityLabel = (type: MathActivityType): string => {
+    const labels: Record<MathActivityType, string> = {
+      addition: 'Suma',
+      subtraction: 'Resta',
+      multiplication: 'Multiplicación',
+      division: 'División',
+      fractions: 'Fracciones'
+    }
+    return labels[type]
+  }
+
+  const getDifficultyLabel = (difficulty: DifficultyLevel): string => {
+    const labels: Record<DifficultyLevel, string> = {
+      easy: 'Fácil',
+      medium: 'Medio',
+      hard: 'Difícil'
+    }
+    return labels[difficulty]
+  }
+
+  const getActivityIcon = (type: MathActivityType): string => {
+    const icons: Record<MathActivityType, string> = {
+      addition: '+',
+      subtraction: '-',
+      multiplication: '×',
+      division: '÷',
+      fractions: '½'
+    }
+    return icons[type]
+  }
 
   if (status === 'loading') {
     return (
@@ -65,6 +134,65 @@ export default function StudentDashboard() {
             Estamos emocionados de verte de nuevo en tu aventura de aprendizaje.
           </p>
         </div>
+
+        {/* Phase 4 Adaptive: AI Recommendation Card */}
+        {recommendation && !isLoadingRecommendation && (
+          <div className="bg-gradient-to-r from-purple-500 to-blue-500 rounded-2xl shadow-2xl p-8 mb-8 text-white">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <div className="flex items-center mb-2">
+                  <span className="text-3xl mr-3">🤖</span>
+                  <h3 className="text-2xl font-bold">Recomendación IA</h3>
+                </div>
+                <p className="text-white/90 text-sm mb-4">
+                  Basado en tu desempeño reciente
+                </p>
+              </div>
+              <div className="text-6xl opacity-20">
+                {getActivityIcon(recommendation.activityType)}
+              </div>
+            </div>
+
+            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-6 mb-4">
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <p className="text-white/80 text-sm mb-1">Actividad recomendada</p>
+                  <p className="text-2xl font-bold">
+                    {getActivityLabel(recommendation.activityType)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-white/80 text-sm mb-1">Dificultad</p>
+                  <p className="text-2xl font-bold">
+                    {getDifficultyLabel(recommendation.difficulty)}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-white/80 text-sm mb-2">💡 Razón</p>
+                <p className="text-white font-medium">{recommendation.reason}</p>
+              </div>
+            </div>
+
+            <Link
+              href="/game"
+              className="block w-full bg-white hover:bg-gray-100 text-purple-600 font-bold py-4 px-6 rounded-xl shadow-lg text-center transition-all duration-200 transform hover:scale-105"
+            >
+              🎯 Comenzar actividad recomendada
+            </Link>
+          </div>
+        )}
+
+        {isLoadingRecommendation && (
+          <div className="bg-white rounded-2xl shadow-2xl p-8 mb-8">
+            <div className="flex items-center justify-center">
+              <div className="text-gray-600">
+                🤖 Analizando tu progreso...
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Stats Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">

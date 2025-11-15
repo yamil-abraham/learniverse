@@ -29,9 +29,12 @@ export default function GamePage() {
     sessionCorrect,
     sessionIncorrect,
     sessionPoints,
+    aiHints,
+    isLoadingAIHint,
     loadActivity,
     submitAnswer,
     useHint,
+    getAIHint,
     resetActivity,
     closeFeedback
   } = useGameStore()
@@ -73,6 +76,16 @@ export default function GamePage() {
     if (hint) {
       setCurrentHint(hint)
     }
+  }
+
+  const handleGetAIHint = async () => {
+    if (!currentActivity) return
+    await getAIHint(
+      currentActivity.id || 'dynamic',
+      currentActivity.question,
+      currentActivity.correctAnswer,
+      currentActivity.type
+    )
   }
 
   const handleNextActivity = () => {
@@ -264,23 +277,51 @@ export default function GamePage() {
               </div>
             )}
 
+            {/* AI Hints Display (Phase 4) */}
+            {aiHints.length > 0 && (
+              <div className="mb-6 space-y-3">
+                {aiHints.map((hint, index) => (
+                  <div key={index} className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 border-l-4 border-purple-400 rounded-lg">
+                    <div className="flex items-start">
+                      <div className="text-xl mr-3">🤖</div>
+                      <div>
+                        <div className="text-xs font-semibold text-purple-600 mb-1">
+                          Pista IA nivel {index + 1}
+                        </div>
+                        <div className="text-gray-700 text-sm">
+                          {hint}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Actions */}
-            <div className="flex gap-4">
+            <div className="grid grid-cols-2 gap-3 mb-4">
               <button
                 onClick={handleUseHint}
                 disabled={!currentActivity.hints || currentActivity.hints.length === 0 || hintsUsed >= (currentActivity.hints?.length || 0)}
-                className="flex-1 px-6 py-3 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-3 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
                 💡 Pista ({hintsUsed}/{currentActivity.hints?.length || 0})
               </button>
               <button
-                onClick={handleSubmit}
-                disabled={!selectedAnswer || isSubmitting}
-                className="flex-1 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleGetAIHint}
+                disabled={isLoadingAIHint || aiHints.length >= 3}
+                className="px-4 py-3 bg-purple-500 hover:bg-purple-600 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
-                {isSubmitting ? 'Enviando...' : 'Enviar Respuesta'}
+                {isLoadingAIHint ? '⏳ Cargando...' : `🤖 Pista IA (${aiHints.length}/3)`}
               </button>
             </div>
+            <button
+              onClick={handleSubmit}
+              disabled={!selectedAnswer || isSubmitting}
+              className="w-full px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? 'Enviando...' : 'Enviar Respuesta'}
+            </button>
           </div>
         )}
 
@@ -313,6 +354,40 @@ export default function GamePage() {
                 <div className="mb-6 p-4 bg-blue-50 rounded-lg">
                   <div className="text-sm text-gray-600 mb-1">Respuesta correcta:</div>
                   <div className="text-xl font-bold text-blue-600">{lastResult.correctAnswer}</div>
+                </div>
+              )}
+
+              {/* AI Feedback - Explanation (Phase 4) */}
+              {lastResult.aiFeedback && (
+                <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 border-l-4 border-purple-400 rounded-lg">
+                  <div className="flex items-start">
+                    <div className="text-2xl mr-3">🤖</div>
+                    <div>
+                      <div className="text-sm font-semibold text-purple-700 mb-2">
+                        Explicación de IA
+                      </div>
+                      <div className="text-gray-700 text-sm leading-relaxed">
+                        {lastResult.aiFeedback}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* AI Encouragement (Phase 4) */}
+              {lastResult.aiEncouragement && (
+                <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-yellow-50 border-l-4 border-green-400 rounded-lg">
+                  <div className="flex items-start">
+                    <div className="text-2xl mr-3">✨</div>
+                    <div>
+                      <div className="text-sm font-semibold text-green-700 mb-2">
+                        Mensaje motivacional
+                      </div>
+                      <div className="text-gray-700 text-sm leading-relaxed">
+                        {lastResult.aiEncouragement}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 

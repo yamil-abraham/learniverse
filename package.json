@@ -11,7 +11,8 @@
     "type-check": "tsc --noEmit",
     "verify-vercel": "node scripts/verify-vercel-config.js",
     "db:init-activities": "node scripts/init-activities-db.js",
-    "db:seed-activities": "node scripts/seed-activities.js"
+    "db:seed-activities": "node scripts/seed-activities.js",
+    "db:init-ai": "tsx scripts/init-ai-db.ts"
   },
   "keywords": [],
   "author": "",
@@ -46,6 +47,7 @@
     "@types/react-dom": "^19.2.2",
     "eslint": "^9.37.0",
     "eslint-config-next": "^15.5.5",
+    "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   }
 }

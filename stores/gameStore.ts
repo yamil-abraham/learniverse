@@ -18,6 +18,8 @@ interface ActivityResult {
   currentLevel: number
   currentExperience: number
   badgesEarned: Badge[]
+  aiFeedback?: string // Phase 4: AI-generated explanation
+  aiEncouragement?: string // Phase 4: AI motivation
 }
 
 interface GameState {
@@ -49,10 +51,15 @@ interface GameState {
   sessionIncorrect: number
   sessionPoints: number
 
+  // Phase 4: AI Features
+  aiHints: string[]
+  isLoadingAIHint: boolean
+
   // Actions
   loadActivity: (type: MathActivityType, difficulty: DifficultyLevel) => Promise<void>
   submitAnswer: (answer: string) => Promise<void>
   useHint: () => string | null
+  getAIHint: (activityId: string, question: string, correctAnswer: string, activityType: string) => Promise<void>
   loadStats: (studentId: string) => Promise<void>
   startTimer: () => void
   stopTimer: () => void
@@ -85,6 +92,10 @@ export const useGameStore = create<GameState>((set, get) => ({
   sessionCorrect: 0,
   sessionIncorrect: 0,
   sessionPoints: 0,
+
+  // Phase 4: AI initial state
+  aiHints: [],
+  isLoadingAIHint: false,
 
   // Load a new activity
   loadActivity: async (type: MathActivityType, difficulty: DifficultyLevel) => {
@@ -178,6 +189,126 @@ export const useGameStore = create<GameState>((set, get) => ({
 
       const result: ActivityResult = data.result
 
+      // Phase 4: Get AI feedback and encouragement if incorrect
+      if (!result.isCorrect && activity.correctAnswer) {
+        try {
+          // Get AI explanation (don't wait, run in parallel)
+          const feedbackPromise = fetch('/api/ai/feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              activityId: activity.id,
+              question: activity.question,
+              correctAnswer: activity.correctAnswer,
+              studentAnswer: answer,
+              activityType: activity.type,
+              difficulty: activity.difficulty
+            })
+          }).then(res => res.json())
+
+          // Get AI encouragement
+          const encouragementPromise = fetch('/api/ai/encouragement', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              activityId: activity.id,
+              isCorrect: false
+            })
+          }).then(res => res.json())
+
+          // Phase 4 Adaptive: Update learning profile
+          const profilePromise = fetch('/api/ai/update-profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              activityType: activity.type,
+              isCorrect: false,
+              timeTaken: state.timeElapsed,
+              hintsUsed: state.hintsUsed
+            })
+          }).then(res => res.json())
+
+          // Phase 4 Adaptive: Analyze mistake pattern
+          const mistakePromise = fetch('/api/ai/analyze-mistake', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              question: activity.question,
+              correctAnswer: activity.correctAnswer,
+              studentAnswer: answer,
+              activityType: activity.type
+            })
+          }).then(res => res.json())
+
+          // Wait for all AI calls in parallel
+          const [feedbackData, encouragementData, profileData, mistakeData] = await Promise.all([
+            feedbackPromise,
+            encouragementPromise,
+            profilePromise,
+            mistakePromise
+          ])
+
+          if (feedbackData.success) {
+            result.aiFeedback = feedbackData.feedback
+          }
+          if (encouragementData.success) {
+            result.aiEncouragement = encouragementData.encouragement
+          }
+
+          // Log adaptive learning results (optional)
+          if (profileData.success && profileData.difficultyUpdate?.changed) {
+            console.log(`✨ Difficulty adjusted to: ${profileData.difficultyUpdate.newDifficulty}`)
+          }
+          if (mistakeData.success) {
+            console.log(`📊 Mistake type: ${mistakeData.analysis.mistakeType}`)
+          }
+        } catch (error) {
+          console.error('Error getting AI feedback:', error)
+          // Continue anyway with basic feedback
+        }
+      } else if (result.isCorrect) {
+        // Get encouragement for correct answers too
+        try {
+          const encouragementPromise = fetch('/api/ai/encouragement', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              activityId: activity.id,
+              isCorrect: true
+            })
+          }).then(res => res.json())
+
+          // Phase 4 Adaptive: Update learning profile for correct answers
+          const profilePromise = fetch('/api/ai/update-profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              activityType: activity.type,
+              isCorrect: true,
+              timeTaken: state.timeElapsed,
+              hintsUsed: state.hintsUsed
+            })
+          }).then(res => res.json())
+
+          // Wait for both
+          const [encouragementData, profileData] = await Promise.all([
+            encouragementPromise,
+            profilePromise
+          ])
+
+          if (encouragementData.success) {
+            result.aiEncouragement = encouragementData.encouragement
+          }
+
+          // Log adaptive learning results (optional)
+          if (profileData.success && profileData.difficultyUpdate?.changed) {
+            console.log(`✨ Difficulty adjusted to: ${profileData.difficultyUpdate.newDifficulty}`)
+          }
+        } catch (error) {
+          console.error('Error getting AI encouragement:', error)
+        }
+      }
+
       // Update session stats
       const newSessionCorrect = result.isCorrect ? state.sessionCorrect + 1 : state.sessionCorrect
       const newSessionIncorrect = !result.isCorrect ? state.sessionIncorrect + 1 : state.sessionIncorrect
@@ -224,6 +355,50 @@ export const useGameStore = create<GameState>((set, get) => ({
     })
 
     return hint
+  },
+
+  // Phase 4: Get AI-generated hint
+  getAIHint: async (activityId: string, question: string, correctAnswer: string, activityType: string) => {
+    set({ isLoadingAIHint: true })
+
+    try {
+      const state = get()
+      const hintLevel = (state.aiHints.length + 1) as 1 | 2 | 3
+
+      if (hintLevel > 3) {
+        console.log('Maximum AI hints reached')
+        set({ isLoadingAIHint: false })
+        return
+      }
+
+      const response = await fetch('/api/ai/hint', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          activityId,
+          question,
+          correctAnswer,
+          activityType,
+          hintLevel
+        })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        set({
+          aiHints: [...state.aiHints, data.hint],
+          hintsUsed: state.hintsUsed + 1,
+          isLoadingAIHint: false
+        })
+      } else {
+        set({ isLoadingAIHint: false })
+      }
+
+    } catch (error) {
+      console.error('Error getting AI hint:', error)
+      set({ isLoadingAIHint: false })
+    }
   },
 
   // Load student stats
@@ -296,7 +471,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       currentHintIndex: 0,
       lastResult: null,
       showFeedback: false,
-      activityError: null
+      activityError: null,
+      aiHints: [], // Phase 4: Reset AI hints
+      isLoadingAIHint: false
     })
   },
 
