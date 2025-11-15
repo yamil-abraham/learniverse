@@ -382,3 +382,219 @@ export interface ActivityTypePerformance {
     attemptsCount: number
   }
 }
+
+// ============================================
+// Phase 5: Teacher Dashboard and Analytics
+// ============================================
+
+// Alert severity types
+export type AlertSeverity = 'info' | 'warning' | 'success'
+
+// Alert types for teacher notifications
+export type AlertType = 'struggling' | 'inactive' | 'achievement' | 'milestone'
+
+// Performance trend classification
+export type PerformanceTrend = 'improving' | 'stable' | 'declining'
+
+// Class/Group Management
+export interface Class {
+  id: string
+  teacherId: string
+  name: string
+  description?: string
+  grade?: number // 4 or 5
+  schoolYear?: string // e.g., "2024-2025"
+  isActive: boolean
+  studentCount?: number // Computed field
+  createdAt: Date
+  updatedAt: Date
+}
+
+// Class-Student Assignment
+export interface ClassStudent {
+  id: string
+  classId: string
+  studentId: string
+  joinedAt: Date
+}
+
+// Teacher Alert/Notification
+export interface TeacherAlert {
+  id: string
+  teacherId: string
+  studentId: string
+  studentName?: string // Joined field from student data
+  alertType: AlertType
+  title: string
+  message: string
+  severity: AlertSeverity
+  isRead: boolean
+  createdAt: Date
+}
+
+// Activity Assignment (Homework)
+export interface ActivityAssignment {
+  id: string
+  teacherId: string
+  studentId?: string // null if assigned to class
+  classId?: string // null if assigned to student
+  activityType: MathActivityType
+  difficulty: DifficultyLevel
+  quantity: number // Number of activities to complete
+  dueDate?: Date
+  isCompleted: boolean
+  completedAt?: Date
+  createdAt: Date
+}
+
+// Student Analytics (Comprehensive)
+export interface StudentAnalytics {
+  // Basic Info
+  studentId: string
+  studentName: string
+  level: number
+  totalPoints: number
+
+  // Performance Metrics
+  totalAttempts: number
+  correctAnswers: number
+  incorrectAnswers: number
+  successRate: number // 0-100
+  averageTimeSeconds: number
+  lastActive: Date
+  streakDays: number
+  badgesEarned: number
+
+  // Activity Breakdown
+  activitiesByType: {
+    [K in MathActivityType]: {
+      attempted: number
+      correct: number
+      successRate: number
+    }
+  }
+
+  // Trends and Insights
+  recentPerformanceTrend: PerformanceTrend
+  needsAttention: boolean
+  strongestArea?: MathActivityType
+  weakestArea?: MathActivityType
+}
+
+// Class Analytics (Aggregate)
+export interface ClassAnalytics {
+  classId: string
+  className: string
+  totalStudents: number
+  activeStudents: number // Active in last 7 days
+  averageLevel: number
+  averageSuccessRate: number
+  totalActivitiesCompleted: number
+  strugglingStudents: number // Students with < 50% success rate
+  topPerformers: StudentSummary[] // Top 3
+  needsAttentionStudents: StudentSummary[] // Bottom performers
+}
+
+// Simplified student summary for lists
+export interface StudentSummary {
+  id: string
+  name: string
+  level: number
+  successRate: number
+  totalAttempts: number
+  lastActive: Date
+  needsAttention: boolean
+}
+
+// Performance over time (for charts)
+export interface PerformanceOverTime {
+  date: string // ISO date (YYYY-MM-DD)
+  successRate: number
+  activitiesCompleted: number
+  averageTime: number
+  pointsEarned: number
+}
+
+// Activity distribution (for pie charts)
+export interface ActivityTypeDistribution {
+  type: MathActivityType
+  count: number
+  successRate: number
+  averageTime: number
+}
+
+// Teacher Dashboard Overview Stats
+export interface TeacherDashboardStats {
+  totalStudents: number
+  activeStudentsToday: number
+  activeStudentsWeek: number
+  totalClasses: number
+  unreadAlerts: number
+  averageClassPerformance: number
+  totalActivitiesCompletedToday: number
+  studentsNeedingAttention: number
+}
+
+// Student Detail Analytics (Extended)
+export interface StudentDetailAnalytics extends StudentAnalytics {
+  // Additional detailed info
+  performanceHistory: PerformanceOverTime[] // Last 30 days
+  activityDistribution: ActivityTypeDistribution[]
+  recentAttempts: StudentAttempt[] // Last 20 attempts
+  badges: Badge[]
+  learningProfile?: StudentLearningProfile
+  classIds: string[] // Classes student is enrolled in
+}
+
+// Class Detail with Students
+export interface ClassDetail extends Class {
+  students: StudentSummary[]
+  analytics: ClassAnalytics
+}
+
+// Alert creation parameters
+export interface CreateAlertParams {
+  teacherId: string
+  studentId: string
+  alertType: AlertType
+  title: string
+  message: string
+  severity?: AlertSeverity
+}
+
+// Assignment creation parameters
+export interface CreateAssignmentParams {
+  teacherId: string
+  studentId?: string
+  classId?: string
+  activityType: MathActivityType
+  difficulty: DifficultyLevel
+  quantity: number
+  dueDate?: Date
+}
+
+// Class creation parameters
+export interface CreateClassParams {
+  teacherId: string
+  name: string
+  description?: string
+  grade?: number
+  schoolYear?: string
+}
+
+// Filter options for student lists
+export interface StudentFilterOptions {
+  classId?: string
+  performanceLevel?: 'all' | 'struggling' | 'excelling' | 'average'
+  searchQuery?: string
+  sortBy?: 'name' | 'level' | 'successRate' | 'lastActive'
+  sortOrder?: 'asc' | 'desc'
+}
+
+// Export report options
+export interface ReportOptions {
+  format: 'csv' | 'json'
+  startDate?: Date
+  endDate?: Date
+  includeDetails?: boolean
+}
