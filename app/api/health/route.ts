@@ -1,39 +1,51 @@
-import { NextResponse } from 'next/server'
-
 /**
  * Health Check Endpoint
- * Verifica que la aplicación esté funcionando correctamente
+ * GET /api/health
  *
- * Accesible vía: GET /health o GET /api/health
+ * Monitors system health including database and external service connectivity
  */
+
+import { NextResponse } from 'next/server'
+import { sql } from '@vercel/postgres'
+
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
-  const healthCheck = {
+  const startTime = Date.now()
+
+  const health = {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development',
-    version: process.env.npm_package_version || '1.0.0',
+    version: '1.0.0',
     services: {
-      database: 'not_configured', // Se actualizará cuando configures la BD
-      openai: process.env.OPENAI_API_KEY ? 'configured' : 'not_configured',
-      azureSpeech: process.env.AZURE_SPEECH_KEY ? 'configured' : 'not_configured',
+      database: 'unknown',
+      openai: 'unknown'
     },
-    memory: {
-      used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
-      total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
-      unit: 'MB'
-    }
+    responseTime: 0
   }
 
-  return NextResponse.json(healthCheck, {
-    status: 200,
-    headers: {
-      'Cache-Control': 'no-store, no-cache, must-revalidate',
-    }
-  })
-}
+  // Check database connection
+  try {
+    await sql`SELECT 1 as health_check`
+    health.services.database = 'connected'
+  } catch (error) {
+    health.services.database = 'disconnected'
+    health.status = 'unhealthy'
+    console.error('Database health check failed:', error)
+  }
 
-// Permitir OPTIONS para CORS preflight
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 200 })
+  // Check OpenAI API key configuration
+  if (process.env.OPENAI_API_KEY) {
+    health.services.openai = 'configured'
+  } else {
+    health.services.openai = 'not-configured'
+    health.status = 'degraded'
+  }
+
+  health.responseTime = Date.now() - startTime
+
+  const statusCode = health.status === 'healthy' ? 200 : health.status === 'degraded' ? 200 : 503
+
+  return NextResponse.json(health, { status: statusCode })
 }

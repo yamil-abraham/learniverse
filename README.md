@@ -1,19 +1,43 @@
 # Learniverse
 
-Plataforma educativa web gamificada para enseñanza de Matemática a estudiantes de 9-11 años, con avatares 3D interactivos y sistema inteligente de adaptación de contenido.
+Plataforma educativa gamificada con avatares 3D para la enseñanza de matemática a estudiantes de 9-11 años, con sistema de aprendizaje adaptativo impulsado por IA.
 
-## Stack Tecnológico
+## 🎓 Trabajo Final de Grado (TFG)
+**Autor:** Abraham Yamil
+**Carrera:** Ingeniería en Inteligencia Artificial y Robótica
+**Año:** 2025
 
-- **Framework**: Next.js 14 con App Router
-- **Lenguaje**: TypeScript
-- **UI**: React 18, Tailwind CSS
-- **3D**: Three.js, React Three Fiber, React Three Drei
-- **Estado**: Zustand
-- **Validación**: Zod
-- **Base de datos**: Vercel Postgres
-- **IA**: OpenAI API
-- **Voz**: Azure Speech Services
-- **Deployment**: Vercel
+## ✨ Características Principales
+
+### Para Estudiantes
+- 🎮 Sistema de juego gamificado con puntos, niveles y medallas
+- 🎨 Avatares 3D personalizables con React Three Fiber
+- 🤖 Retroalimentación con IA (OpenAI GPT-4o-mini)
+- 📊 Seguimiento de progreso en tiempo real
+- 🏆 Sistema de logros y medallas
+- 📈 Aprendizaje adaptativo basado en rendimiento
+- 💡 Sistema de pistas progresivas con IA
+
+### Para Docentes
+- 📊 Dashboard de análisis completo
+- 👥 Gestión de clases y estudiantes
+- 📈 Métricas de rendimiento detalladas
+- 🔔 Sistema de alertas automáticas
+- 📄 Exportación de reportes (CSV)
+- 🎯 Identificación de áreas de mejora
+- 👁️ Monitoreo de progreso en tiempo real
+
+## 🚀 Stack Tecnológico
+
+- **Frontend:** Next.js 14 (App Router), React 18, TypeScript
+- **3D Graphics:** Three.js, React Three Fiber, React Three Drei
+- **Database:** Vercel Postgres
+- **AI:** OpenAI GPT-4o-mini
+- **Styling:** Tailwind CSS
+- **State Management:** Zustand
+- **Charts:** Recharts
+- **Authentication:** NextAuth.js
+- **Deployment:** Vercel
 
 ## Estructura del Proyecto
 
@@ -43,43 +67,34 @@ learniverse/
 └── middleware/            # Middlewares de Next.js
 ```
 
-## Instalación y Configuración
+## 📦 Instalación
 
-### Prerrequisitos
+Ver la [Guía de Instalación Completa](./INSTALLATION.md) para instrucciones detalladas.
 
-- Node.js 18.x o superior
-- npm o yarn
+### Inicio Rápido
 
-### Pasos de Instalación
-
-1. Clonar el repositorio:
 ```bash
-git clone https://github.com/tu-usuario/learniverse.git
+# Clonar repositorio
+git clone https://github.com/yamil-abraham/learniverse.git
 cd learniverse
-```
 
-2. Instalar dependencias:
-```bash
+# Instalar dependencias
 npm install
-```
 
-3. Configurar variables de entorno:
-```bash
+# Configurar variables de entorno
 cp .env.example .env.local
-```
+# Editar .env.local con tus credenciales
 
-Edita `.env.local` y configura las siguientes variables:
-- Credenciales de Vercel Postgres
-- API key de OpenAI
-- Credenciales de Azure Speech Services
-- Otras configuraciones necesarias
+# Inicializar base de datos
+npm run db:init-activities
+npm run db:init-ai
+npm run db:init-teacher
 
-4. Ejecutar en desarrollo:
-```bash
+# Ejecutar en desarrollo
 npm run dev
 ```
 
-El proyecto estará disponible en `http://localhost:3000`
+Abre [http://localhost:3000](http://localhost:3000)
 
 ## Scripts Disponibles
 
@@ -115,37 +130,64 @@ El proyecto está configurado para desplegarse en Vercel:
 2. Configura las variables de entorno en el dashboard de Vercel
 3. Vercel automáticamente desplegará en cada push a la rama principal
 
-## Roadmap
+## 🎥 Demo
 
-- [ ] Sistema de autenticación con NextAuth
-- [ ] Creación de avatares 3D personalizables
-- [ ] Banco de actividades matemáticas
-- [ ] Integración con OpenAI para adaptación de contenido
-- [ ] Sistema de progreso y estadísticas
-- [ ] Integración con Azure Speech Services
-- [ ] Panel de administración para docentes
-- [ ] Tests unitarios y de integración
+**Aplicación en producción:** [https://learniverse.vercel.app](https://learniverse.vercel.app)
+**Código fuente:** [https://github.com/yamil-abraham/learniverse](https://github.com/yamil-abraham/learniverse)
+**Video demostrativo:** [Próximamente]
 
-## Contribución
+El prototipo implementa todas las funcionalidades core definidas en la propuesta del TFG.
 
-Este es un proyecto de Trabajo Final de Grado (TFG). Para contribuir:
+## 📚 Documentación
 
-1. Crea un fork del proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+- [📖 Guía de Instalación](./INSTALLATION.md)
+- [✅ Checklist de Deployment](./docs/DEPLOYMENT_CHECKLIST.md)
+- [🎬 Script para Video Demo](./docs/VIDEO_DEMO_SCRIPT.md)
+- [🐛 Bugs y Issues](./docs/BUGS.md)
+- [📋 Contexto del Proyecto](./CLAUDE_CONTEXT.md)
 
-## Licencia
+## ✅ Estado del Proyecto
+
+### Fases Completadas
+- ✅ **Fase 1:** Sistema de Autenticación y Base de Datos
+- ✅ **Fase 2:** Motor 3D con Avatares Personalizables
+- ✅ **Fase 3:** Banco de Actividades y Gamificación
+- ✅ **Fase 4:** Sistema de Aprendizaje Adaptativo con IA
+- ✅ **Fase 5:** Panel de Análisis para Docentes
+- ✅ **Fase 6:** Integración Final, Testing y Deployment
+
+### Características Implementadas
+- ✅ Autenticación con NextAuth.js (estudiantes y docentes)
+- ✅ Avatares 3D personalizables con React Three Fiber
+- ✅ 5 tipos de actividades matemáticas
+- ✅ 3 niveles de dificultad adaptativa
+- ✅ Integración con OpenAI GPT-4o-mini
+- ✅ Sistema de puntos, niveles y medallas
+- ✅ Dashboard completo para docentes
+- ✅ Sistema de alertas automáticas
+- ✅ Exportación de reportes
+- ✅ Responsive design (desktop y móvil)
+
+## 🚢 Deployment
+
+Ver el [Checklist de Deployment](./docs/DEPLOYMENT_CHECKLIST.md) para instrucciones completas.
+
+### Deployment en Vercel
+
+```bash
+# Conectar con Vercel
+vercel login
+
+# Deploy a producción
+vercel --prod
+```
+
+## 📄 Licencia
 
 ISC License
 
-## Contacto
+## 👤 Contacto
 
-Proyecto desarrollado como Trabajo Final de Grado
-
-## Documentación Adicional
-
-Para más información sobre el proyecto, consulta:
-- [CLAUDE_CONTEXT.md](./CLAUDE_CONTEXT.md) - Contexto completo del proyecto
-- Documentación de carpetas en cada directorio (README.md)
+**Abraham Yamil**
+Proyecto desarrollado como Trabajo Final de Grado (TFG)
+Ingeniería en Inteligencia Artificial y Robótica - 2025
