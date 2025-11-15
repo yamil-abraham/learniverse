@@ -45,13 +45,88 @@ export interface StudentStats {
   streak: number
 }
 
-// Actividades y ejercicios
-export type ActivityType = 'arithmetic' | 'geometry' | 'logic' | 'word-problem'
+// Actividades y ejercicios - General types
+export type ActivityCategory = 'arithmetic' | 'geometry' | 'logic' | 'word-problem'
 export type DifficultyLevel = 'easy' | 'medium' | 'hard'
 
+// Phase 3: Math Activities - Specific types
+export type MathActivityType = 'addition' | 'subtraction' | 'multiplication' | 'division' | 'fractions'
+
+// Phase 3: Math Activity interface for database
+export interface MathActivity {
+  id: string
+  type: MathActivityType
+  difficulty: DifficultyLevel
+  question: string
+  correctAnswer: string
+  options?: string[] // For multiple choice
+  explanation?: string
+  hints?: string[]
+  points: number
+  timeLimitSeconds: number
+  createdAt: Date
+}
+
+// Phase 3: Student Attempt interface
+export interface StudentAttempt {
+  id: string
+  studentId: string
+  activityId: string
+  answerGiven: string
+  isCorrect: boolean
+  timeTakenSeconds: number
+  hintsUsed: number
+  pointsEarned: number
+  attemptedAt: Date
+}
+
+// Phase 3: Badge types
+export type BadgeType =
+  | 'first_correct'
+  | 'speed_demon'
+  | 'persistent'
+  | 'perfect_score'
+  | 'level_up'
+  | 'master_addition'
+  | 'master_subtraction'
+  | 'master_multiplication'
+  | 'master_division'
+  | 'master_fractions'
+
+// Phase 3: Badge interface
+export interface Badge {
+  id: string
+  studentId: string
+  badgeType: BadgeType
+  badgeName: string
+  badgeDescription: string
+  earnedAt: Date
+}
+
+// Phase 3: Game Stats interface
+export interface GameStats {
+  level: number
+  experience: number
+  totalPoints: number
+  correctAnswers: number
+  incorrectAnswers: number
+  totalAttempts: number
+  averageTimeSeconds: number
+  streakDays: number
+  badges: Badge[]
+  attemptsByType: {
+    addition: number
+    subtraction: number
+    multiplication: number
+    division: number
+    fractions: number
+  }
+}
+
+// Legacy Activity interface (Phase 1 - keeping for compatibility)
 export interface Activity {
   id: string
-  type: ActivityType
+  type: ActivityCategory
   title: string
   description: string
   difficulty: DifficultyLevel

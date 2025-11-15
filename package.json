@@ -9,7 +9,9 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "verify-vercel": "node scripts/verify-vercel-config.js"
+    "verify-vercel": "node scripts/verify-vercel-config.js",
+    "db:init-activities": "node scripts/init-activities-db.js",
+    "db:seed-activities": "node scripts/seed-activities.js"
   },
   "keywords": [],
   "author": "",
