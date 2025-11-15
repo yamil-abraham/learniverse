@@ -30,10 +30,20 @@ export default function LoadingSpinner({
     xl: 'text-xl'
   }
 
+  const colorClasses = {
+    indigo: 'border-indigo-600',
+    blue: 'border-blue-600',
+    green: 'border-green-600',
+    red: 'border-red-600',
+    purple: 'border-purple-600'
+  }
+
+  const borderColor = (colorClasses as any)[color] || 'border-indigo-600'
+
   const spinner = (
     <div className="flex flex-col items-center justify-center gap-4">
       <div
-        className={`${sizeClasses[size]} animate-spin rounded-full border-${color}-600 border-t-transparent`}
+        className={`${sizeClasses[size]} ${borderColor} animate-spin rounded-full border-t-transparent`}
         role="status"
         aria-label="Loading"
       />
@@ -99,11 +109,22 @@ export function CardSkeleton({ count = 1 }: { count?: number }) {
  * Table Skeleton
  */
 export function TableSkeleton({ rows = 5, columns = 4 }: { rows?: number; columns?: number }) {
+  const gridColsClasses: Record<number, string> = {
+    1: 'grid-cols-1',
+    2: 'grid-cols-2',
+    3: 'grid-cols-3',
+    4: 'grid-cols-4',
+    5: 'grid-cols-5',
+    6: 'grid-cols-6'
+  }
+
+  const gridClass = gridColsClasses[columns] || 'grid-cols-4'
+
   return (
     <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
       {/* Header */}
       <div className="grid gap-4 border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
-        <div className={`grid grid-cols-${columns} gap-4`}>
+        <div className={`grid ${gridClass} gap-4`}>
           {Array.from({ length: columns }).map((_, i) => (
             <LoadingSkeleton key={i} className="h-4" />
           ))}
@@ -116,7 +137,7 @@ export function TableSkeleton({ rows = 5, columns = 4 }: { rows?: number; column
           key={rowIndex}
           className="grid gap-4 border-b border-gray-200 p-4 last:border-b-0 dark:border-gray-700"
         >
-          <div className={`grid grid-cols-${columns} gap-4`}>
+          <div className={`grid ${gridClass} gap-4`}>
             {Array.from({ length: columns }).map((_, colIndex) => (
               <LoadingSkeleton key={colIndex} className="h-4" />
             ))}
