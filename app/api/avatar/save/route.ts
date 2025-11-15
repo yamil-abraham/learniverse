@@ -10,6 +10,8 @@ import { authOptions } from '@/lib/auth/config'
 import { updateStudentAvatar, getStudentByUserId } from '@/lib/db/queries'
 import type { AvatarConfig } from '@/types'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     // Check authentication

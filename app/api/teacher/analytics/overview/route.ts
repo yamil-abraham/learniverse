@@ -9,6 +9,8 @@ import { authOptions } from '@/lib/auth/config'
 import { getTeacherByUserId } from '@/lib/db/queries'
 import { getTeacherDashboardStats } from '@/lib/db/teacher-queries'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     // Check authentication

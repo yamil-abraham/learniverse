@@ -17,6 +17,8 @@ import {
 import { getLevelInfo } from '@/lib/gamification/levels'
 import type { GameStats } from '@/types'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     // Check authentication

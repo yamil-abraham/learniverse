@@ -17,6 +17,8 @@ import {
 import { recommendDifficulty, shouldChangeDifficulty, classifyLearningSpeed } from '@/lib/ai/difficulty-adapter'
 import type { MathActivityType } from '@/types'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     // Check authentication

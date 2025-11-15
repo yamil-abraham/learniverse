@@ -13,6 +13,8 @@ import {
   getStudentActivityDistribution
 } from '@/lib/db/teacher-queries'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { studentId: string } }

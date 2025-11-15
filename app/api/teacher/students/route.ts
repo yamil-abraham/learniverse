@@ -10,6 +10,8 @@ import { getTeacherByUserId } from '@/lib/db/queries'
 import { getTeacherStudents, getFilteredStudents } from '@/lib/db/teacher-queries'
 import type { StudentFilterOptions } from '@/types'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     // Check authentication

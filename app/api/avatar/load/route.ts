@@ -10,6 +10,8 @@ import { authOptions } from '@/lib/auth/config'
 import { getStudentById, getStudentByUserId } from '@/lib/db/queries'
 import { DEFAULT_AVATAR_CONFIG } from '@/types'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     // Check authentication

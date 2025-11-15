@@ -16,6 +16,8 @@ import {
 import { recommendNextActivityType } from '@/lib/ai/difficulty-adapter'
 import type { ActivityTypePerformance } from '@/types'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     // Check authentication

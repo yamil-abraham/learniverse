@@ -11,6 +11,8 @@ import { getTeacherByUserId } from '@/lib/db/queries'
 import { getTeacherAlerts, createTeacherAlert, markAllAlertsAsRead } from '@/lib/db/teacher-queries'
 import type { CreateAlertParams } from '@/types'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     // Check authentication

@@ -14,6 +14,8 @@ import {
   removeStudentFromClass
 } from '@/lib/db/teacher-queries'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(
   request: NextRequest,
   { params }: { params: { classId: string } }

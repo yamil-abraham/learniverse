@@ -9,6 +9,8 @@ import { authOptions } from '@/lib/auth/config'
 import { getTeacherByUserId } from '@/lib/db/queries'
 import { markAlertAsRead } from '@/lib/db/teacher-queries'
 
+export const dynamic = 'force-dynamic'
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: { alertId: string } }

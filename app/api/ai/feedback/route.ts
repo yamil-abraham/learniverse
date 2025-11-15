@@ -13,6 +13,8 @@ import { generateExplanation } from '@/lib/ai/openai-client'
 import { saveAIFeedback } from '@/lib/db/queries'
 import type { MathActivityType, DifficultyLevel } from '@/types'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     // Check authentication

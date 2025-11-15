@@ -5,13 +5,13 @@
 
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { useTeacherDashboard } from '@/store/use-teacher-dashboard'
 
-export default function NewAssignmentPage() {
+function NewAssignmentForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { data: session } = useSession()
@@ -276,5 +276,20 @@ export default function NewAssignmentPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function NewAssignmentPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Cargando...</p>
+        </div>
+      </div>
+    }>
+      <NewAssignmentForm />
+    </Suspense>
   )
 }

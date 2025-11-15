@@ -5,7 +5,7 @@
 
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Search, Filter, X, Users } from 'lucide-react'
@@ -14,7 +14,7 @@ import { DataTable, Column } from '@/components/teacher/DataTable'
 import { PerformanceBadge } from '@/components/teacher/PerformanceBadge'
 import type { StudentSummary } from '@/types'
 
-export default function TeacherStudentsPage() {
+function TeacherStudentsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { data: session, status } = useSession()
@@ -282,5 +282,20 @@ export default function TeacherStudentsPage() {
         />
       </div>
     </div>
+  )
+}
+
+export default function TeacherStudentsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Cargando...</p>
+        </div>
+      </div>
+    }>
+      <TeacherStudentsContent />
+    </Suspense>
   )
 }

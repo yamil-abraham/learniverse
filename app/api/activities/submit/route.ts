@@ -20,6 +20,8 @@ import {
 } from '@/lib/db/queries'
 import type { MathActivityType, DifficultyLevel, Badge } from '@/types'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     // Check authentication
