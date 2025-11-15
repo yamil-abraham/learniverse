@@ -226,3 +226,159 @@ export interface RegisterFormData {
   grade?: number
   school?: string
 }
+
+// ============================================
+// Phase 4: AI-Powered Adaptive Learning System
+// ============================================
+
+// Learning speed classification
+export type LearningSpeed = 'slow' | 'normal' | 'fast'
+
+// AI feedback types
+export type AIFeedbackType = 'explanation' | 'hint' | 'encouragement' | 'correction'
+
+// Student Learning Profile
+export interface StudentLearningProfile {
+  id: string
+  studentId: string
+
+  // Performance by activity type (success rate 0-100)
+  additionSuccessRate: number
+  subtractionSuccessRate: number
+  multiplicationSuccessRate: number
+  divisionSuccessRate: number
+  fractionsSuccessRate: number
+
+  // Current difficulty preference per type
+  additionDifficulty: DifficultyLevel
+  subtractionDifficulty: DifficultyLevel
+  multiplicationDifficulty: DifficultyLevel
+  divisionDifficulty: DifficultyLevel
+  fractionsDifficulty: DifficultyLevel
+
+  // Attempt counts per type
+  additionAttempts: number
+  subtractionAttempts: number
+  multiplicationAttempts: number
+  divisionAttempts: number
+  fractionsAttempts: number
+
+  // Learning patterns
+  averageTimePerQuestion: number
+  hintsUsageRate: number
+  commonMistakePatterns: string[]
+  learningSpeed: LearningSpeed
+
+  // Engagement metrics
+  consecutiveCorrect: number
+  consecutiveIncorrect: number
+  sessionCount: number
+  totalQuestionsAttempted: number
+
+  // Timestamps
+  createdAt: Date
+  updatedAt: Date
+}
+
+// AI Feedback History
+export interface AIFeedback {
+  id: string
+  studentId: string
+  activityId: string
+  attemptId?: string
+
+  feedbackType: AIFeedbackType
+  userAnswer?: string
+  feedbackText: string
+  wasHelpful?: boolean
+
+  // AI metadata
+  aiModel: string
+  tokensUsed?: number
+  generationTimeMs?: number
+
+  createdAt: Date
+}
+
+// Adaptive Recommendation
+export interface AdaptiveRecommendation {
+  id: string
+  studentId: string
+
+  recommendedActivityType: MathActivityType
+  recommendedDifficulty: DifficultyLevel
+  reason: string
+  confidenceScore: number // 0.00 to 1.00
+
+  // Tracking
+  wasUsed: boolean
+  wasSuccessful?: boolean
+
+  createdAt: Date
+  usedAt?: Date
+}
+
+// Performance Data for Difficulty Adapter
+export interface PerformanceData {
+  totalAttempts: number
+  correctAnswers: number
+  incorrectAnswers: number
+  successRate: number
+  averageTime: number
+  consecutiveCorrect: number
+  consecutiveIncorrect: number
+}
+
+// Difficulty Recommendation Result
+export interface DifficultyRecommendation {
+  activityType: MathActivityType
+  difficulty: DifficultyLevel
+  confidence: number // 0-1
+  reason: string
+}
+
+// Mistake Analysis Result
+export interface MistakeAnalysis {
+  mistakeType: string
+  suggestion: string
+  explanation?: string
+}
+
+// OpenAI Request Parameters
+export interface GenerateExplanationParams {
+  question: string
+  correctAnswer: string
+  studentAnswer: string
+  activityType: MathActivityType
+  difficulty: DifficultyLevel
+}
+
+export interface GenerateHintParams {
+  question: string
+  correctAnswer: string
+  hintLevel: 1 | 2 | 3
+  activityType: MathActivityType
+}
+
+export interface GenerateEncouragementParams {
+  isCorrect: boolean
+  consecutiveCorrect: number
+  consecutiveIncorrect: number
+  studentName: string
+}
+
+export interface AnalyzeMistakeParams {
+  question: string
+  correctAnswer: string
+  studentAnswer: string
+  activityType: MathActivityType
+}
+
+// Activity Type Performance Map
+export interface ActivityTypePerformance {
+  [key: string]: {
+    successRate: number
+    currentDifficulty: DifficultyLevel
+    attemptsCount: number
+  }
+}

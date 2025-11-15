@@ -674,3 +674,370 @@ export async function getStudentGameStats(studentId: string): Promise<any> {
   `
   return executeQuerySingle<any>(query, [studentId])
 }
+
+/**
+ * PHASE 4: AI ADAPTIVE LEARNING SYSTEM
+ */
+
+export interface DbLearningProfile {
+  id: string
+  student_id: string
+  addition_success_rate: number
+  subtraction_success_rate: number
+  multiplication_success_rate: number
+  division_success_rate: number
+  fractions_success_rate: number
+  addition_difficulty: string
+  subtraction_difficulty: string
+  multiplication_difficulty: string
+  division_difficulty: string
+  fractions_difficulty: string
+  addition_attempts: number
+  subtraction_attempts: number
+  multiplication_attempts: number
+  division_attempts: number
+  fractions_attempts: number
+  average_time_per_question: number
+  hints_usage_rate: number
+  common_mistake_patterns: any
+  learning_speed: string
+  consecutive_correct: number
+  consecutive_incorrect: number
+  session_count: number
+  total_questions_attempted: number
+  created_at: Date
+  updated_at: Date
+}
+
+export interface DbAIFeedback {
+  id: string
+  student_id: string
+  activity_id: string
+  attempt_id: string | null
+  feedback_type: string
+  user_answer: string | null
+  feedback_text: string
+  was_helpful: boolean | null
+  ai_model: string | null
+  tokens_used: number | null
+  generation_time_ms: number | null
+  created_at: Date
+}
+
+export interface DbAdaptiveRecommendation {
+  id: string
+  student_id: string
+  recommended_activity_type: string
+  recommended_difficulty: string
+  reason: string | null
+  confidence_score: number | null
+  was_used: boolean
+  was_successful: boolean | null
+  created_at: Date
+  used_at: Date | null
+}
+
+/**
+ * Get student learning profile
+ */
+export async function getStudentLearningProfile(
+  studentId: string
+): Promise<DbLearningProfile | null> {
+  const query = `SELECT * FROM student_learning_profile WHERE student_id = $1`
+  return executeQuerySingle<DbLearningProfile>(query, [studentId])
+}
+
+/**
+ * Initialize learning profile for a new student
+ */
+export async function initializeLearningProfile(
+  studentId: string
+): Promise<DbLearningProfile> {
+  const query = `
+    INSERT INTO student_learning_profile (student_id)
+    VALUES ($1)
+    ON CONFLICT (student_id) DO NOTHING
+    RETURNING *
+  `
+  return executeInsert<DbLearningProfile>(query, [studentId])
+}
+
+/**
+ * Update learning profile (partial update)
+ */
+export async function updateLearningProfile(
+  studentId: string,
+  updates: Partial<Omit<DbLearningProfile, 'id' | 'student_id' | 'created_at' | 'updated_at'>>
+): Promise<void> {
+  const fields = Object.keys(updates)
+  if (fields.length === 0) return
+
+  const setClause = fields
+    .map((field, index) => `${field} = $${index + 2}`)
+    .join(', ')
+
+  const values = fields.map(field => updates[field as keyof typeof updates])
+
+  const query = `
+    UPDATE student_learning_profile
+    SET ${setClause}
+    WHERE student_id = $1
+  `
+
+  await executeUpdate(query, [studentId, ...values])
+}
+
+/**
+ * Update performance for specific activity type
+ */
+export async function updateActivityTypePerformance(
+  studentId: string,
+  activityType: string,
+  isCorrect: boolean,
+  timeTaken: number,
+  hintsUsed: number
+): Promise<void> {
+  const profile = await getStudentLearningProfile(studentId)
+  if (!profile) {
+    await initializeLearningProfile(studentId)
+    return updateActivityTypePerformance(studentId, activityType, isCorrect, timeTaken, hintsUsed)
+  }
+
+  // Calculate new success rate
+  const attemptsField = `${activityType}_attempts` as keyof DbLearningProfile
+  const successRateField = `${activityType}_success_rate` as keyof DbLearningProfile
+
+  const currentAttempts = profile[attemptsField] as number
+  const currentSuccessRate = profile[successRateField] as number
+
+  const currentCorrect = (currentSuccessRate / 100) * currentAttempts
+  const newCorrect = currentCorrect + (isCorrect ? 1 : 0)
+  const newAttempts = currentAttempts + 1
+  const newSuccessRate = (newCorrect / newAttempts) * 100
+
+  // Update consecutive counters
+  const newConsecutiveCorrect = isCorrect ? profile.consecutive_correct + 1 : 0
+  const newConsecutiveIncorrect = !isCorrect ? profile.consecutive_incorrect + 1 : 0
+
+  // Update average time
+  const totalTime = profile.average_time_per_question * profile.total_questions_attempted
+  const newTotalTime = totalTime + timeTaken
+  const newTotalAttempts = profile.total_questions_attempted + 1
+  const newAverageTime = Math.round(newTotalTime / newTotalAttempts)
+
+  // Update hints usage rate
+  const totalHints = (profile.hints_usage_rate / 100) * profile.total_questions_attempted
+  const newTotalHints = totalHints + hintsUsed
+  const newHintsRate = (newTotalHints / newTotalAttempts) * 100
+
+  await updateLearningProfile(studentId, {
+    [attemptsField]: newAttempts,
+    [successRateField]: newSuccessRate,
+    consecutive_correct: newConsecutiveCorrect,
+    consecutive_incorrect: newConsecutiveIncorrect,
+    total_questions_attempted: newTotalAttempts,
+    average_time_per_question: newAverageTime,
+    hints_usage_rate: newHintsRate
+  } as any)
+}
+
+/**
+ * Update difficulty for activity type
+ */
+export async function updateActivityTypeDifficulty(
+  studentId: string,
+  activityType: string,
+  newDifficulty: string
+): Promise<void> {
+  const difficultyField = `${activityType}_difficulty`
+
+  await updateLearningProfile(studentId, {
+    [difficultyField]: newDifficulty
+  } as any)
+}
+
+/**
+ * Save AI feedback
+ */
+export async function saveAIFeedback(
+  studentId: string,
+  activityId: string,
+  feedbackType: string,
+  feedbackText: string,
+  attemptId?: string,
+  userAnswer?: string,
+  aiModel?: string,
+  tokensUsed?: number,
+  generationTimeMs?: number
+): Promise<DbAIFeedback> {
+  const query = `
+    INSERT INTO ai_feedback_history (
+      student_id, activity_id, attempt_id, feedback_type,
+      user_answer, feedback_text, ai_model, tokens_used, generation_time_ms
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    RETURNING *
+  `
+  return executeInsert<DbAIFeedback>(query, [
+    studentId,
+    activityId,
+    attemptId || null,
+    feedbackType,
+    userAnswer || null,
+    feedbackText,
+    aiModel || 'gpt-4o-mini',
+    tokensUsed || null,
+    generationTimeMs || null
+  ])
+}
+
+/**
+ * Get recent AI feedback for student
+ */
+export async function getRecentAIFeedback(
+  studentId: string,
+  limit: number = 20
+): Promise<DbAIFeedback[]> {
+  const query = `
+    SELECT * FROM ai_feedback_history
+    WHERE student_id = $1
+    ORDER BY created_at DESC
+    LIMIT $2
+  `
+  return executeQuery<DbAIFeedback>(query, [studentId, limit])
+}
+
+/**
+ * Save adaptive recommendation
+ */
+export async function saveAdaptiveRecommendation(
+  studentId: string,
+  activityType: string,
+  difficulty: string,
+  reason: string,
+  confidenceScore: number
+): Promise<DbAdaptiveRecommendation> {
+  const query = `
+    INSERT INTO adaptive_recommendations (
+      student_id, recommended_activity_type, recommended_difficulty,
+      reason, confidence_score
+    )
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING *
+  `
+  return executeInsert<DbAdaptiveRecommendation>(query, [
+    studentId,
+    activityType,
+    difficulty,
+    reason,
+    confidenceScore
+  ])
+}
+
+/**
+ * Get latest recommendation for student
+ */
+export async function getLatestRecommendation(
+  studentId: string
+): Promise<DbAdaptiveRecommendation | null> {
+  const query = `
+    SELECT * FROM adaptive_recommendations
+    WHERE student_id = $1
+    ORDER BY created_at DESC
+    LIMIT 1
+  `
+  return executeQuerySingle<DbAdaptiveRecommendation>(query, [studentId])
+}
+
+/**
+ * Mark recommendation as used
+ */
+export async function markRecommendationUsed(
+  recommendationId: string,
+  wasSuccessful: boolean
+): Promise<void> {
+  const query = `
+    UPDATE adaptive_recommendations
+    SET was_used = true, was_successful = $2, used_at = NOW()
+    WHERE id = $1
+  `
+  await executeUpdate(query, [recommendationId, wasSuccessful])
+}
+
+/**
+ * Get performance data for specific activity type
+ */
+export async function getActivityTypePerformance(
+  studentId: string,
+  activityType: string
+): Promise<{
+  totalAttempts: number
+  correctAnswers: number
+  incorrectAnswers: number
+  successRate: number
+  averageTime: number
+  consecutiveCorrect: number
+  consecutiveIncorrect: number
+} | null> {
+  const query = `
+    SELECT
+      COUNT(*) as total_attempts,
+      SUM(CASE WHEN is_correct THEN 1 ELSE 0 END) as correct_answers,
+      SUM(CASE WHEN NOT is_correct THEN 1 ELSE 0 END) as incorrect_answers,
+      AVG(CASE WHEN is_correct THEN 1.0 ELSE 0.0 END) * 100 as success_rate,
+      AVG(time_taken_seconds) as average_time
+    FROM student_attempts sa
+    JOIN activities a ON sa.activity_id = a.id
+    WHERE sa.student_id = $1 AND a.type = $2
+  `
+
+  const result = await executeQuerySingle<any>(query, [studentId, activityType])
+  if (!result || result.total_attempts === 0) return null
+
+  const profile = await getStudentLearningProfile(studentId)
+
+  return {
+    totalAttempts: parseInt(result.total_attempts),
+    correctAnswers: parseInt(result.correct_answers),
+    incorrectAnswers: parseInt(result.incorrect_answers),
+    successRate: parseFloat(result.success_rate) || 0,
+    averageTime: parseFloat(result.average_time) || 0,
+    consecutiveCorrect: profile?.consecutive_correct || 0,
+    consecutiveIncorrect: profile?.consecutive_incorrect || 0
+  }
+}
+
+/**
+ * Get all activity types performance summary
+ */
+export async function getAllActivityTypesPerformance(
+  studentId: string
+): Promise<Record<string, any>> {
+  const types = ['addition', 'subtraction', 'multiplication', 'division', 'fractions']
+  const result: Record<string, any> = {}
+
+  for (const type of types) {
+    const perf = await getActivityTypePerformance(studentId, type)
+    const profile = await getStudentLearningProfile(studentId)
+
+    result[type] = {
+      successRate: perf?.successRate || 0,
+      currentDifficulty: profile?.[`${type}_difficulty` as keyof DbLearningProfile] || 'easy',
+      attemptsCount: perf?.totalAttempts || 0
+    }
+  }
+
+  return result
+}
+
+/**
+ * Update session count
+ */
+export async function incrementSessionCount(studentId: string): Promise<void> {
+  const query = `
+    UPDATE student_learning_profile
+    SET session_count = session_count + 1
+    WHERE student_id = $1
+  `
+  await executeUpdate(query, [studentId])
+}
