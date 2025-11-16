@@ -227,6 +227,7 @@ export function MathBlackboard({ classroom = 'default', studentName }: MathBlack
                   <p className="text-white/80 text-3xl mb-4">Selecciona la Dificultad</p>
                   <div className="grid grid-cols-3 gap-4">
                     <button
+                      type="button"
                       onClick={() => setSelectedDifficulty('easy')}
                       className={`p-6 rounded-xl text-4xl font-bold transition-all duration-200 ${
                         selectedDifficulty === 'easy'
@@ -237,6 +238,7 @@ export function MathBlackboard({ classroom = 'default', studentName }: MathBlack
                       Fácil
                     </button>
                     <button
+                      type="button"
                       onClick={() => setSelectedDifficulty('medium')}
                       className={`p-6 rounded-xl text-4xl font-bold transition-all duration-200 ${
                         selectedDifficulty === 'medium'
@@ -247,6 +249,7 @@ export function MathBlackboard({ classroom = 'default', studentName }: MathBlack
                       Medio
                     </button>
                     <button
+                      type="button"
                       onClick={() => setSelectedDifficulty('hard')}
                       className={`p-6 rounded-xl text-4xl font-bold transition-all duration-200 ${
                         selectedDifficulty === 'hard'
@@ -271,6 +274,7 @@ export function MathBlackboard({ classroom = 'default', studentName }: MathBlack
               </div>
 
               <button
+                type="button"
                 onClick={generateExercise}
                 disabled={!selectedDifficulty}
                 className={`w-full font-bold py-6 px-8 rounded-2xl shadow-lg transition-all duration-200 text-5xl ${
@@ -300,6 +304,7 @@ export function MathBlackboard({ classroom = 'default', studentName }: MathBlack
             <div className="grid grid-cols-2 gap-6 mb-8">
               {currentExercise.options.map((option, index) => (
                 <button
+                  type="button"
                   key={index}
                   onClick={() => setSelectedAnswer(option)}
                   className={`p-8 rounded-2xl text-6xl font-bold transition-all duration-200 ${
@@ -316,6 +321,7 @@ export function MathBlackboard({ classroom = 'default', studentName }: MathBlack
             {/* Submit Button */}
             {selectedAnswer && (
               <button
+                type="button"
                 onClick={handleSubmitAnswer}
                 disabled={isSubmitting}
                 className="w-full bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white font-bold py-6 px-8 rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-200 text-5xl disabled:opacity-50 disabled:cursor-not-allowed"
@@ -390,6 +396,8 @@ export function MathBlackboard({ classroom = 'default', studentName }: MathBlack
             {/* Play/Stop Button (copied from reference) */}
             {currentMessage === message ? (
               <button
+                type="button"
+                aria-label="Detener audio"
                 className="text-white/65 ml-4"
                 onClick={() => stopMessage(message)}
               >
@@ -415,6 +423,8 @@ export function MathBlackboard({ classroom = 'default', studentName }: MathBlack
               </button>
             ) : (
               <button
+                type="button"
+                aria-label="Reproducir audio"
                 className="text-white/65 ml-4"
                 onClick={() => playMessage(message)}
               >
