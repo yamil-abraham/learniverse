@@ -1,6 +1,7 @@
 /**
  * Alert Badge Component
  * For displaying alerts with severity indicators
+ * Updated with v0 design system semantic colors
  */
 
 import React from 'react'
@@ -17,23 +18,23 @@ export function AlertBadge({ severity, count, showIcon = true, size = 'md' }: Al
   const severityConfig = {
     low: {
       icon: Info,
-      bgColor: 'bg-blue-100 dark:bg-blue-900/30',
-      textColor: 'text-blue-800 dark:text-blue-200',
-      borderColor: 'border-blue-200 dark:border-blue-800',
+      bgColor: 'bg-accent/10',
+      textColor: 'text-accent',
+      borderColor: 'border-accent/20',
       label: 'Baja'
     },
     medium: {
       icon: AlertTriangle,
-      bgColor: 'bg-yellow-100 dark:bg-yellow-900/30',
-      textColor: 'text-yellow-800 dark:text-yellow-200',
-      borderColor: 'border-yellow-200 dark:border-yellow-800',
+      bgColor: 'bg-secondary/10',
+      textColor: 'text-secondary',
+      borderColor: 'border-secondary/20',
       label: 'Media'
     },
     high: {
       icon: AlertCircle,
-      bgColor: 'bg-red-100 dark:bg-red-900/30',
-      textColor: 'text-red-800 dark:text-red-200',
-      borderColor: 'border-red-200 dark:border-red-800',
+      bgColor: 'bg-destructive/10',
+      textColor: 'text-destructive',
+      borderColor: 'border-destructive/20',
       label: 'Alta'
     }
   }
