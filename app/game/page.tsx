@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation'
 import { useGameStore, startGameTimer } from '@/stores/gameStore'
 import type { MathActivityType, DifficultyLevel } from '@/types'
 import { BADGE_DEFINITIONS } from '@/lib/gamification/badges'
+import { TeacherContainer } from '@/components/game/teacher'
 
 export default function GamePage() {
   const { data: session, status } = useSession()
@@ -43,6 +44,7 @@ export default function GamePage() {
   const [currentHint, setCurrentHint] = useState<string | null>(null)
   const [selectedType, setSelectedType] = useState<MathActivityType>('addition')
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel>('easy')
+  const [showTeacher, setShowTeacher] = useState(false)
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -113,12 +115,21 @@ export default function GamePage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-4xl font-bold text-white">Juego de Matemáticas</h1>
-          <button
-            onClick={handleBackToDashboard}
-            className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors"
-          >
-            ← Volver al Dashboard
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowTeacher(!showTeacher)}
+              className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors flex items-center gap-2"
+            >
+              <span className="text-xl">👨‍🏫</span>
+              {showTeacher ? 'Ocultar Profesor' : 'Mostrar Profesor'}
+            </button>
+            <button
+              onClick={handleBackToDashboard}
+              className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors"
+            >
+              ← Volver al Dashboard
+            </button>
+          </div>
         </div>
 
         {/* Session Stats */}
@@ -428,6 +439,18 @@ export default function GamePage() {
               </button>
             </div>
           </div>
+        )}
+
+        {/* 3D Teacher */}
+        {showTeacher && (
+          <TeacherContainer
+            activityId={currentActivity?.id}
+            activityContext={currentActivity ? `Tipo: ${currentActivity.type}, Dificultad: ${currentActivity.difficulty}, Pregunta: ${currentActivity.question}` : undefined}
+            sessionId={`game-session-${Date.now()}`}
+            teacherId="teacher1"
+            fullscreen={true}
+            onClose={() => setShowTeacher(false)}
+          />
         )}
       </div>
     </div>

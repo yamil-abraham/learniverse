@@ -35,7 +35,14 @@
       "Bash(git remote prune:*)",
       "Bash(rd /s /q .next 2)",
       "Bash(timeout 5 cmd /c \"rmdir /s /q .next 2>nul && echo Deleted || echo Already clean\")",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(lib/speech/rhubarb/rhubarb.exe:*)",
+      "Bash(npm run db:init-teacher-voice:*)",
+      "Bash(npm run db:init-activities:*)",
+      "Bash(npm run verify-voice:*)",
+      "Bash(curl:*)",
+      "Bash(timeout 5 cmd:*)",
+      "Bash(git restore:*)"
     ],
     "deny": [],
     "ask": []

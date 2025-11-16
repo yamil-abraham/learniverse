@@ -13,7 +13,9 @@
     "db:init-activities": "node scripts/init-activities-db.js",
     "db:seed-activities": "node scripts/seed-activities.js",
     "db:init-ai": "tsx scripts/init-ai-db.ts",
-    "db:init-teacher": "tsx scripts/init-teacher-db.ts"
+    "db:init-teacher": "tsx scripts/init-teacher-db.ts",
+    "db:init-teacher-voice": "tsx scripts/init-teacher-voice-db.ts",
+    "verify-voice": "tsx scripts/verify-openai-voice.ts"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +23,7 @@
   "dependencies": {
     "@react-three/drei": "^9.114.3",
     "@react-three/fiber": "^8.17.10",
+    "@types/fluent-ffmpeg": "^2.1.28",
     "@types/three": "^0.180.0",
     "@vercel/analytics": "^1.5.0",
     "@vercel/postgres": "^0.10.0",
@@ -30,6 +33,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",
+    "fluent-ffmpeg": "^2.1.3",
     "lucide-react": "^0.553.0",
     "next": "^14.2.33",
     "next-auth": "^4.24.13",
