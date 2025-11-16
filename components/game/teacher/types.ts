@@ -36,6 +36,13 @@ export interface VoiceResponse {
   animation: string
   expression: string
   duration: number
+  // Phase 2: Whiteboard support
+  showWhiteboard?: boolean
+  mathProblem?: {
+    operation: 'addition' | 'subtraction' | 'multiplication' | 'division' | 'fractions'
+    operand1: number
+    operand2: number
+  } | null
 }
 
 export interface ConversationMessage {

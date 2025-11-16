@@ -12,6 +12,13 @@ import { transcribeAudio, validateAudioBuffer } from '@/lib/speech/stt'
 import { generateSpeech, validateTTSText, generateTextHash, normalizeText, type VoiceType } from '@/lib/speech/tts'
 import { generateLipSyncFromBuffer } from '@/lib/speech/lip-sync'
 import { getCachedVoiceResponse, cacheVoiceResponse, saveVoiceInteraction } from '@/lib/db/teacher-voice-queries'
+import {
+  getAnimationForResponse,
+  extractMathProblem,
+  shouldShowWhiteboard,
+  getExpressionForSentiment,
+  detectSentiment
+} from '@/lib/teacher/animation-context'
 import OpenAI from 'openai'
 
 const openai = new OpenAI({
@@ -64,6 +71,8 @@ Instrucciones importantes:
 - Puedes usar emojis ocasionalmente
 - Si el estudiante pregunta algo fuera de matemáticas, redirige amablemente al tema
 - Da pistas sin revelar la respuesta completa
+- Cuando expliques problemas matemáticos, incluye los números en tu respuesta (ej: "7 + 5")
+- Usa frases como "Mira la pizarra" o "Te lo explico paso a paso" para activar visualizaciones
 
 ${params.activityContext ? `Contexto actual: ${params.activityContext}` : ''}
 
@@ -106,10 +115,21 @@ Expresiones disponibles: default, smile, sad, surprised, thinking, happy`,
     const responseText = completion.choices[0].message.content || '{}'
     const response = JSON.parse(responseText)
 
+    const teacherText = response.text || 'Lo siento, no entendí tu pregunta. ¿Podrías repetirla?'
+
+    // Phase 2: Enhance with contextual animation detection
+    const contextualAnimation = getAnimationForResponse(teacherText)
+    const sentiment = detectSentiment(teacherText)
+    const contextualExpression = getExpressionForSentiment(sentiment)
+
+    // Use ChatGPT's suggestion if valid, otherwise use contextual detection
+    const finalAnimation = response.animation || contextualAnimation
+    const finalExpression = response.expression || contextualExpression
+
     return {
-      text: response.text || 'Lo siento, no entendí tu pregunta. ¿Podrías repetirla?',
-      animation: response.animation || 'TalkingOne',
-      expression: response.expression || 'default',
+      text: teacherText,
+      animation: finalAnimation,
+      expression: finalExpression,
     }
   } catch (error: any) {
     console.error('Error generating teacher response:', error)
@@ -210,6 +230,14 @@ export async function POST(request: NextRequest) {
 
     console.log(`✅ Teacher response: "${teacherResponse.text}"`)
 
+    // Phase 2: Detect whiteboard and math problems
+    const showWhiteboard = shouldShowWhiteboard(teacherResponse.text)
+    const mathProblem = extractMathProblem(teacherResponse.text)
+
+    if (showWhiteboard && mathProblem) {
+      console.log(`📊 Whiteboard triggered: ${mathProblem.operation} (${mathProblem.operand1}, ${mathProblem.operand2})`)
+    }
+
     // 5. Check cache for teacher audio
     const textHash = generateTextHash(teacherResponse.text, voice || 'nova', 'tts-1')
     let cached = false
@@ -251,6 +279,8 @@ export async function POST(request: NextRequest) {
             animation: teacherResponse.animation,
             expression: teacherResponse.expression,
             duration: cachedResponse.audioDurationSeconds,
+            showWhiteboard: showWhiteboard,
+            mathProblem: mathProblem,
           },
           sessionId: sessionId || `session-${Date.now()}`,
           cached: true,
@@ -330,6 +360,8 @@ export async function POST(request: NextRequest) {
         animation: teacherResponse.animation,
         expression: teacherResponse.expression,
         duration: audioDurationSeconds,
+        showWhiteboard: showWhiteboard,
+        mathProblem: mathProblem,
       },
       sessionId: sessionId || `session-${Date.now()}`,
       cached: false,

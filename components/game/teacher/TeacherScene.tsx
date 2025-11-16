@@ -1,7 +1,7 @@
 // @ts-nocheck
 /**
  * TeacherScene Component
- * Three.js Canvas wrapper for 3D teacher
+ * Three.js Canvas wrapper for 3D teacher with environment
  */
 
 'use client'
@@ -9,6 +9,20 @@
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Environment, PerspectiveCamera } from '@react-three/drei'
 import type { TeacherSceneProps } from './types'
+import { Classroom, type ClassroomType } from './Classroom'
+import { Whiteboard } from './Whiteboard'
+import type { MathOperationType } from '@/lib/whiteboard/math-animator'
+
+export interface EnhancedTeacherSceneProps extends TeacherSceneProps {
+  classroomType?: ClassroomType
+  showWhiteboard?: boolean
+  whiteboardProblem?: {
+    operation: MathOperationType
+    operand1: number
+    operand2: number
+  } | null
+  onWhiteboardAnimationComplete?: () => void
+}
 
 export function TeacherScene({
   children,
@@ -16,7 +30,11 @@ export function TeacherScene({
   cameraFov = 50,
   enableShadows = true,
   backgroundColor = '#1a1a2e',
-}: TeacherSceneProps) {
+  classroomType = 'modern',
+  showWhiteboard = false,
+  whiteboardProblem = null,
+  onWhiteboardAnimationComplete
+}: EnhancedTeacherSceneProps) {
   return (
     <Canvas
       shadows={enableShadows}
@@ -49,6 +67,21 @@ export function TeacherScene({
 
       {/* Environment */}
       <Environment preset="studio" />
+
+      {/* Classroom Environment */}
+      <Classroom type={classroomType} />
+
+      {/* Whiteboard (if enabled) */}
+      {showWhiteboard && (
+        <Whiteboard
+          position={[2, 1.5, -2]}
+          rotation={[0, -0.3, 0]}
+          width={2.5}
+          height={1.8}
+          showMathProblem={whiteboardProblem}
+          onAnimationComplete={onWhiteboardAnimationComplete}
+        />
+      )}
 
       {/* Teacher Model */}
       {children}
