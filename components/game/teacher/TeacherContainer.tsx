@@ -45,7 +45,7 @@ export function TeacherContainer({
     autoResponse: true,
   })
 
-  // Voice hook
+  // Voice hook (Phase 2: includes whiteboard and classroom)
   const {
     isListening,
     isSpeaking,
@@ -59,6 +59,12 @@ export function TeacherContainer({
     stopListening,
     stopSpeaking,
     clearHistory,
+    // Phase 2: Whiteboard and classroom
+    showWhiteboard,
+    whiteboardProblem,
+    classroomType,
+    clearWhiteboard,
+    changeClassroom,
   } = useTeacherVoice({
     teacherId: teacher.id,
     voice: teacher.voiceId,
@@ -119,23 +125,45 @@ export function TeacherContainer({
 
   return (
     <div className={containerStyle}>
-      {/* Close button (for fullscreen mode) */}
-      {fullscreen && onClose && (
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full backdrop-blur-sm transition-colors"
-        >
-          <span className="text-xl">✕</span>
-        </button>
-      )}
+      {/* Top Controls */}
+      <div className="absolute top-4 right-4 z-50 flex gap-2">
+        {/* Clear Whiteboard button (Phase 2) */}
+        {showWhiteboard && (
+          <button
+            onClick={clearWhiteboard}
+            className="bg-orange-500/90 hover:bg-orange-600/90 text-white px-4 py-2 rounded-lg backdrop-blur-sm transition-colors text-sm font-medium"
+            title="Limpiar pizarra"
+          >
+            🗑️ Limpiar Pizarra
+          </button>
+        )}
 
-      {/* 3D Scene */}
+        {/* Close button (for fullscreen mode) */}
+        {fullscreen && onClose && (
+          <button
+            onClick={onClose}
+            className="bg-white/10 hover:bg-white/20 text-white p-3 rounded-full backdrop-blur-sm transition-colors"
+            title="Cerrar"
+          >
+            <span className="text-xl">✕</span>
+          </button>
+        )}
+      </div>
+
+      {/* 3D Scene (Phase 2: includes whiteboard and classroom) */}
       <div className="absolute inset-0">
         <TeacherScene
           cameraPosition={[0, 0, 5]}
           cameraFov={50}
           enableShadows={true}
           backgroundColor="transparent"
+          // Phase 2: Whiteboard and classroom props
+          classroomType={classroomType}
+          showWhiteboard={showWhiteboard}
+          whiteboardProblem={whiteboardProblem}
+          onWhiteboardAnimationComplete={() => {
+            console.log('✅ Whiteboard animation complete')
+          }}
         >
           <Teacher3D
             modelPath={teacher.modelPath}
