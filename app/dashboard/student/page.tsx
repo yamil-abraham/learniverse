@@ -1,6 +1,7 @@
 /**
  * Dashboard del Estudiante
  * Ruta: /dashboard/student
+ * Redesigned with v0 design system - Preserves ALL functionality
  */
 
 'use client'
@@ -10,6 +11,28 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import type { MathActivityType, DifficultyLevel, Class } from '@/types'
+import {
+  Sparkles,
+  LogOut,
+  Trophy,
+  Star,
+  Target,
+  Gamepad2,
+  Brain,
+  TrendingUp,
+  Users,
+  GraduationCap,
+  Loader2,
+  Rocket,
+  Zap
+} from 'lucide-react'
+
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
 interface Recommendation {
   activityType: MathActivityType
@@ -100,21 +123,22 @@ export default function StudentDashboard() {
     return labels[difficulty]
   }
 
-  const getActivityIcon = (type: MathActivityType): string => {
-    const icons: Record<MathActivityType, string> = {
-      addition: '+',
-      subtraction: '-',
-      multiplication: '×',
-      division: '÷',
-      fractions: '½'
+  const getDifficultyColor = (difficulty: DifficultyLevel): string => {
+    const colors: Record<DifficultyLevel, string> = {
+      easy: 'bg-success/10 text-success border-success',
+      medium: 'bg-secondary/10 text-secondary border-secondary',
+      hard: 'bg-destructive/10 text-destructive border-destructive'
     }
-    return icons[type]
+    return colors[difficulty]
   }
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center">
-        <div className="text-white text-xl">Cargando...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="size-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Cargando...</p>
+        </div>
       </div>
     )
   }
@@ -127,281 +151,286 @@ export default function StudentDashboard() {
     await signOut({ callbackUrl: '/login' })
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-10 left-10 w-20 h-20 bg-yellow-300 rounded-full opacity-20 animate-bounce" style={{ animationDelay: '0s', animationDuration: '3s' }} />
-        <div className="absolute top-32 right-20 w-16 h-16 bg-pink-300 rounded-full opacity-20 animate-bounce" style={{ animationDelay: '1s', animationDuration: '4s' }} />
-        <div className="absolute bottom-20 left-1/4 w-24 h-24 bg-blue-300 rounded-full opacity-20 animate-bounce" style={{ animationDelay: '2s', animationDuration: '5s' }} />
-        <div className="absolute bottom-40 right-1/3 w-14 h-14 bg-green-300 rounded-full opacity-20 animate-bounce" style={{ animationDelay: '0.5s', animationDuration: '3.5s' }} />
-      </div>
+  const experienceToNextLevel = 100 - ((session.user?.experience || 0) % 100)
+  const progressPercentage = ((session.user?.experience || 0) % 100)
 
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
       {/* Header */}
-      <header className="relative bg-gradient-to-r from-indigo-600 to-purple-600 shadow-2xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <div className="bg-white rounded-full p-3 shadow-lg transform hover:rotate-12 transition-transform">
-                <span className="text-4xl">🚀</span>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-full bg-primary/10">
+                <Rocket className="size-6 text-primary" />
               </div>
               <div>
-                <h1 className="text-3xl font-black text-white tracking-wide">LEARNIVERSE</h1>
-                <p className="text-sm text-white/80 font-medium">¡Tu Aventura Matemática!</p>
+                <h1 className="text-2xl font-bold text-foreground">LEARNIVERSE</h1>
+                <p className="text-sm text-muted-foreground">Tu Aventura Matemática</p>
               </div>
             </div>
-            <button
-              onClick={handleLogout}
-              className="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-4 rounded-full transition-all text-sm backdrop-blur-sm border-2 border-white/30"
-            >
-              ← Salir
-            </button>
+            <Button variant="outline" onClick={handleLogout} size="sm">
+              <LogOut className="mr-2 size-4" />
+              Salir
+            </Button>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section with Character */}
-        <div className="relative bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 rounded-3xl shadow-2xl p-8 mb-8 overflow-hidden transform hover:scale-105 transition-transform">
-          <div className="absolute top-0 right-0 w-48 h-48 bg-white/20 rounded-full -mr-24 -mt-24" />
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/20 rounded-full -ml-16 -mb-16" />
-
-          <div className="relative flex items-center justify-between">
-            <div>
-              <h2 className="text-5xl font-black text-white mb-3 drop-shadow-lg">
-                ¡Hola, {session.user?.name}! 🎉
-              </h2>
-              <p className="text-2xl text-white/90 font-bold">
-                ¡Listo para una nueva aventura matemática!
-              </p>
-            </div>
-            <div className="hidden md:block">
-              <div className="bg-white rounded-full p-6 shadow-2xl animate-bounce">
-                <span className="text-7xl">🌟</span>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Welcome Card */}
+        <Card className="border-2 shadow-lg overflow-hidden">
+          <div className="bg-gradient-to-r from-primary via-accent to-secondary p-1">
+            <div className="bg-background p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-4xl font-bold text-foreground mb-2">
+                    ¡Hola, {session.user?.name}!
+                  </h2>
+                  <p className="text-xl text-muted-foreground">
+                    ¿Listo para una nueva aventura matemática?
+                  </p>
+                </div>
+                <div className="hidden md:block">
+                  <div className="p-4 rounded-full bg-primary/10 animate-bounce-soft">
+                    <Sparkles className="size-12 text-primary" />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </Card>
 
-        {/* Phase 4 Adaptive: AI Recommendation Card */}
+        {/* AI Recommendation Card */}
+        {isLoadingRecommendation && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="size-5 text-primary animate-pulse" />
+                Analizando tu progreso...
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+            </CardContent>
+          </Card>
+        )}
+
         {recommendation && !isLoadingRecommendation && (
-          <div className="bg-gradient-to-r from-purple-500 to-blue-500 rounded-2xl shadow-2xl p-8 mb-8 text-white">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <div className="flex items-center mb-2">
-                  <span className="text-3xl mr-3">🤖</span>
-                  <h3 className="text-2xl font-bold">Recomendación IA</h3>
+          <Card className="border-2 border-accent shadow-lg">
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <CardTitle className="flex items-center gap-2 text-2xl">
+                    <Brain className="size-6 text-accent" />
+                    Recomendación IA
+                  </CardTitle>
+                  <CardDescription className="text-base">
+                    Basado en tu desempeño reciente
+                  </CardDescription>
                 </div>
-                <p className="text-white/90 text-sm mb-4">
-                  Basado en tu desempeño reciente
-                </p>
+                <Badge variant="secondary" className="text-lg px-3 py-1">
+                  {Math.round(recommendation.confidence * 100)}% confianza
+                </Badge>
               </div>
-              <div className="text-6xl opacity-20">
-                {getActivityIcon(recommendation.activityType)}
-              </div>
-            </div>
-
-            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-6 mb-4">
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                  <p className="text-white/80 text-sm mb-1">Actividad recomendada</p>
-                  <p className="text-2xl font-bold">
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Actividad recomendada</p>
+                  <p className="text-2xl font-bold text-primary">
                     {getActivityLabel(recommendation.activityType)}
                   </p>
                 </div>
-                <div>
-                  <p className="text-white/80 text-sm mb-1">Dificultad</p>
-                  <p className="text-2xl font-bold">
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Dificultad</p>
+                  <Badge className={`text-base px-3 py-1 ${getDifficultyColor(recommendation.difficulty)}`}>
                     {getDifficultyLabel(recommendation.difficulty)}
-                  </p>
+                  </Badge>
                 </div>
               </div>
 
-              <div>
-                <p className="text-white/80 text-sm mb-2">💡 Razón</p>
-                <p className="text-white font-medium">{recommendation.reason}</p>
-              </div>
-            </div>
+              <Alert>
+                <Zap className="size-4" />
+                <AlertDescription className="text-base">
+                  {recommendation.reason}
+                </AlertDescription>
+              </Alert>
 
-            <Link
-              href={`/game?type=${recommendation.activityType}&difficulty=${recommendation.difficulty}&recommended=true`}
-              className="block w-full bg-white hover:bg-gray-100 text-purple-600 font-bold py-4 px-6 rounded-xl shadow-lg text-center transition-all duration-200 transform hover:scale-105"
-            >
-              🎯 Comenzar actividad recomendada
-            </Link>
-          </div>
+              <Button asChild size="lg" className="w-full h-14 text-lg">
+                <Link href={`/game?type=${recommendation.activityType}&difficulty=${recommendation.difficulty}&recommended=true`}>
+                  <Target className="mr-2 size-5" />
+                  Comenzar actividad recomendada
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
         )}
 
-        {isLoadingRecommendation && (
-          <div className="bg-white rounded-2xl shadow-2xl p-8 mb-8">
-            <div className="flex items-center justify-center">
-              <div className="text-gray-600">
-                🤖 Analizando tu progreso...
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Stats Section - Gamified Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Level Card */}
-          <div className="relative bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl shadow-2xl p-6 overflow-hidden transform hover:scale-105 transition-all">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-white/20 rounded-full -mr-12 -mt-12" />
-            <div className="relative">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="bg-white rounded-full p-3 shadow-lg">
-                  <span className="text-4xl">🏆</span>
+          <Card className="border-2 hover:shadow-lg transition-shadow">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-full bg-secondary/10">
+                  <Trophy className="size-6 text-secondary" />
                 </div>
-                <span className="text-white/80 font-bold text-lg">NIVEL</span>
+                <CardTitle className="text-lg">Nivel</CardTitle>
               </div>
-              <div className="text-6xl font-black text-white drop-shadow-lg mb-2">
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="text-5xl font-bold text-foreground">
                 {session.user?.level || 1}
               </div>
-              <div className="bg-white/30 rounded-full h-3 overflow-hidden backdrop-blur-sm">
-                <div
-                  className="bg-white h-full rounded-full transition-all duration-500"
-                  style={{ width: `${((session.user?.experience || 0) % 100)}%` }}
-                />
+              <div className="space-y-2">
+                <Progress value={progressPercentage} className="h-2" />
+                <p className="text-sm text-muted-foreground">
+                  {experienceToNextLevel} XP para nivel {(session.user?.level || 1) + 1}
+                </p>
               </div>
-              <p className="text-white/90 text-sm font-bold mt-2">
-                {100 - ((session.user?.experience || 0) % 100)} XP para subir
-              </p>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Experience Card */}
-          <div className="relative bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl shadow-2xl p-6 overflow-hidden transform hover:scale-105 transition-all">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-white/20 rounded-full -mr-12 -mt-12" />
-            <div className="relative">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="bg-white rounded-full p-3 shadow-lg">
-                  <span className="text-4xl">⭐</span>
+          <Card className="border-2 hover:shadow-lg transition-shadow">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-full bg-accent/10">
+                  <Star className="size-6 text-accent" />
                 </div>
-                <span className="text-white/80 font-bold text-lg">EXPERIENCIA</span>
+                <CardTitle className="text-lg">Experiencia</CardTitle>
               </div>
-              <div className="text-6xl font-black text-white drop-shadow-lg mb-2">
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="text-5xl font-bold text-foreground">
                 {session.user?.experience || 0}
               </div>
-              <p className="text-white/90 text-sm font-bold">XP Totales</p>
-            </div>
-          </div>
+              <p className="text-sm text-muted-foreground">XP Totales</p>
+            </CardContent>
+          </Card>
 
           {/* Activities Card */}
-          <div className="relative bg-gradient-to-br from-green-400 to-cyan-500 rounded-2xl shadow-2xl p-6 overflow-hidden transform hover:scale-105 transition-all">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-white/20 rounded-full -mr-12 -mt-12" />
-            <div className="relative">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="bg-white rounded-full p-3 shadow-lg">
-                  <span className="text-4xl">🎯</span>
+          <Card className="border-2 hover:shadow-lg transition-shadow">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-full bg-success/10">
+                  <Target className="size-6 text-success" />
                 </div>
-                <span className="text-white/80 font-bold text-lg">EJERCICIOS</span>
+                <CardTitle className="text-lg">Ejercicios</CardTitle>
               </div>
-              <div className="text-6xl font-black text-white drop-shadow-lg mb-2">
-                0
-              </div>
-              <p className="text-white/90 text-sm font-bold">Completados hoy</p>
-            </div>
-          </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="text-5xl font-bold text-foreground">0</div>
+              <p className="text-sm text-muted-foreground">Completados hoy</p>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Giant Play Button */}
-        <div className="max-w-2xl mx-auto mb-8">
-          <Link
-            href="/game"
-            className="group relative block bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500 hover:from-green-500 hover:via-emerald-600 hover:to-teal-600 text-white font-black py-10 px-8 rounded-3xl shadow-2xl transform hover:scale-110 transition-all duration-300 overflow-hidden"
-          >
-            {/* Animated background shine */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 group-hover:translate-x-full transition-transform duration-1000" />
-
-            <div className="relative flex items-center justify-center gap-4">
-              <div className="bg-white rounded-full p-4 shadow-lg group-hover:rotate-12 transition-transform">
-                <span className="text-6xl animate-bounce">🎮</span>
-              </div>
-              <div className="text-center">
-                <div className="text-5xl font-black drop-shadow-lg">¡A JUGAR!</div>
-                <div className="text-xl text-white/90 font-bold mt-1">Comienza tu aventura</div>
+        <Card className="border-4 border-success shadow-2xl overflow-hidden group hover:scale-[1.02] transition-transform">
+          <Link href="/game" className="block">
+            <div className="bg-gradient-to-r from-success via-success/90 to-success p-12 text-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 group-hover:translate-x-full transition-transform duration-1000" />
+              <div className="relative flex flex-col items-center gap-4">
+                <div className="p-4 rounded-full bg-white/20 backdrop-blur group-hover:scale-110 transition-transform">
+                  <Gamepad2 className="size-16 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-5xl font-black text-white drop-shadow-lg">¡A JUGAR!</h3>
+                  <p className="text-xl text-white/90 font-bold mt-2">Comienza tu aventura</p>
+                </div>
               </div>
             </div>
-
-            {/* Pulse effect */}
-            <div className="absolute inset-0 rounded-3xl border-4 border-white/30 group-hover:border-white/60 transition-all" />
           </Link>
-        </div>
+        </Card>
 
         {/* My Classes Section */}
-        {classes.length > 0 && (
-          <div className="bg-white rounded-3xl shadow-2xl p-8 mb-8">
-            <h3 className="text-4xl font-black text-gray-800 mb-6 flex items-center gap-3">
-              <div className="bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl p-3 shadow-lg">
-                <span className="text-4xl">🏫</span>
-              </div>
-              MIS CLASES
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {classes.map((classItem) => (
-                <div
-                  key={classItem.id}
-                  className="relative border-4 border-dashed border-indigo-300 rounded-2xl p-6 hover:shadow-xl transition-all bg-gradient-to-br from-blue-50 to-purple-50 hover:scale-105 transform"
-                >
-                  <div className="absolute -top-3 -right-3 bg-yellow-400 rounded-full w-12 h-12 flex items-center justify-center shadow-lg">
-                    <span className="text-2xl">✨</span>
-                  </div>
-                  <h4 className="text-2xl font-black text-indigo-600 mb-2">
-                    {classItem.name}
-                  </h4>
-                  {classItem.description && (
-                    <p className="text-gray-700 text-base mb-4 font-medium">
-                      {classItem.description}
-                    </p>
-                  )}
-                  <div className="flex items-center gap-4 text-base">
-                    {classItem.grade && (
-                      <span className="flex items-center gap-1 bg-blue-100 px-3 py-1 rounded-full font-bold text-blue-700">
-                        <span>📚</span>
-                        Grado {classItem.grade}
-                      </span>
-                    )}
-                    <span className="flex items-center gap-1 bg-purple-100 px-3 py-1 rounded-full font-bold text-purple-700">
-                      <span>👥</span>
-                      {classItem.studentCount}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {isLoadingClasses && (
-          <div className="bg-white rounded-2xl shadow-2xl p-8 mb-8">
-            <div className="flex items-center justify-center">
-              <div className="text-gray-600">
-                🏫 Cargando clases...
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <GraduationCap className="size-6" />
+                Cargando clases...
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Skeleton className="h-32" />
+                <Skeleton className="h-32" />
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {classes.length > 0 && !isLoadingClasses && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3 text-3xl">
+                <div className="p-3 rounded-full bg-primary/10">
+                  <GraduationCap className="size-8 text-primary" />
+                </div>
+                MIS CLASES
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {classes.map((classItem) => (
+                  <Card key={classItem.id} className="border-2 hover:shadow-lg transition-all hover:scale-[1.02]">
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <CardTitle className="text-xl">{classItem.name}</CardTitle>
+                        <Sparkles className="size-5 text-primary" />
+                      </div>
+                      {classItem.description && (
+                        <CardDescription className="text-base">
+                          {classItem.description}
+                        </CardDescription>
+                      )}
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center gap-3">
+                        {classItem.grade && (
+                          <Badge variant="secondary" className="gap-1">
+                            <GraduationCap className="size-3" />
+                            Grado {classItem.grade}
+                          </Badge>
+                        )}
+                        <Badge variant="outline" className="gap-1">
+                          <Users className="size-3" />
+                          {classItem.studentCount} estudiantes
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Motivational Card */}
+        <Card className="border-2 border-primary shadow-lg">
+          <div className="bg-gradient-to-r from-primary via-accent to-secondary p-1">
+            <div className="bg-background p-6">
+              <div className="flex items-center gap-4">
+                <div className="p-4 rounded-full bg-primary/10">
+                  <TrendingUp className="size-10 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-3xl font-bold text-foreground mb-2">
+                    ¡TÚ PUEDES HACERLO!
+                  </h3>
+                  <p className="text-lg text-muted-foreground">
+                    Cada problema que resuelves te hace más inteligente. ¡Sigue así, campeón!
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        )}
-
-        {/* Motivational Footer */}
-        <div className="relative mt-8 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 rounded-3xl p-8 overflow-hidden shadow-2xl">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full -mr-16 -mt-16" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/20 rounded-full -ml-12 -mb-12" />
-
-          <div className="relative flex items-center gap-4">
-            <div className="bg-white rounded-full p-4 shadow-lg">
-              <span className="text-5xl">💪</span>
-            </div>
-            <div>
-              <h3 className="text-3xl font-black text-white mb-2 drop-shadow-lg">
-                ¡TÚ PUEDES HACERLO!
-              </h3>
-              <p className="text-xl text-white/90 font-bold">
-                Cada problema que resuelves te hace más inteligente. ¡Sigue así, campeón!
-              </p>
-            </div>
-          </div>
-        </div>
+        </Card>
       </main>
     </div>
   )
