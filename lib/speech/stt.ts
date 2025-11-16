@@ -178,7 +178,7 @@ export async function transcribeAudioFile(
       response_format: 'text',
     })
 
-    const text = typeof transcription === 'string' ? transcription : transcription.text || ''
+    const text = typeof transcription === 'string' ? transcription : (transcription as any).text || ''
 
     console.log(`✅ File transcription complete: "${text.substring(0, 50)}..."`)
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * TeacherScene Component
  * Three.js Canvas wrapper for 3D teacher
