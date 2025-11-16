@@ -1,10 +1,13 @@
 /**
  * Página de Registro
  * Ruta: /register
+ * Redesigned with v0 design system
  */
 
 import RegisterForm from '@/components/auth/RegisterForm'
 import { Metadata } from 'next'
+import Link from 'next/link'
+import { GraduationCap, Sparkles } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Registrarse - Learniverse',
@@ -13,20 +16,40 @@ export const metadata: Metadata = {
 
 export default function RegisterPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex flex-col items-center justify-center p-4">
-      <div className="mb-8 text-center">
-        <h1 className="text-5xl font-bold text-white mb-2">
-          Learniverse
-        </h1>
-        <p className="text-xl text-white/90">
-          Únete a la aventura del aprendizaje
-        </p>
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
+      {/* Header */}
+      <div className="p-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-foreground hover:text-primary transition-colors group"
+        >
+          <GraduationCap className="size-6 group-hover:scale-110 transition-transform" />
+          <span className="text-xl font-bold">Learniverse</span>
+          <Sparkles className="size-4 text-primary animate-pulse" />
+        </Link>
       </div>
 
-      <RegisterForm />
+      {/* Main Content */}
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-md space-y-6">
+          {/* Welcome Message */}
+          <div className="text-center space-y-2">
+            <h1 className="text-4xl font-bold tracking-tight text-foreground">
+              Únete a Learniverse
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Comienza tu aventura de aprendizaje hoy
+            </p>
+          </div>
 
-      <footer className="mt-8 text-white/80 text-sm">
-        © 2024 Learniverse - Plataforma educativa gamificada
+          {/* Register Form */}
+          <RegisterForm />
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="p-6 text-center text-sm text-muted-foreground">
+        © {new Date().getFullYear()} Learniverse - Plataforma educativa gamificada
       </footer>
     </div>
   )
