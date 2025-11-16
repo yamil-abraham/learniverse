@@ -206,6 +206,49 @@ export async function deleteClass(classId: string): Promise<void> {
 }
 
 /**
+ * Get all classes for a student
+ */
+export async function getStudentClasses(studentId: string): Promise<Class[]> {
+  try {
+    const result = await sql`
+      SELECT
+        c.id,
+        c.teacher_id AS "teacherId",
+        c.name,
+        c.description,
+        c.grade,
+        c.school_year AS "schoolYear",
+        c.is_active AS "isActive",
+        c.created_at AS "createdAt",
+        c.updated_at AS "updatedAt",
+        COUNT(DISTINCT cs2.student_id) AS "studentCount"
+      FROM class_students cs
+      JOIN classes c ON cs.class_id = c.id
+      LEFT JOIN class_students cs2 ON c.id = cs2.class_id
+      WHERE cs.student_id = ${studentId} AND c.is_active = true
+      GROUP BY c.id
+      ORDER BY c.created_at DESC
+    `
+
+    return result.rows.map((row: any) => ({
+      id: row.id,
+      teacherId: row.teacherId,
+      name: row.name,
+      description: row.description,
+      grade: row.grade,
+      schoolYear: row.schoolYear,
+      isActive: row.isActive,
+      studentCount: parseInt(row.studentCount || '0'),
+      createdAt: new Date(row.createdAt),
+      updatedAt: new Date(row.updatedAt)
+    }))
+  } catch (error) {
+    console.error('Error getting student classes:', error)
+    throw error
+  }
+}
+
+/**
  * Get students in a class
  */
 export async function getClassStudents(classId: string): Promise<StudentSummary[]> {
@@ -785,6 +828,13 @@ export async function getTeacherDashboardStats(teacherId: string): Promise<Teach
         JOIN students s ON sa.student_id = s.id
         WHERE s.teacher_id = ${teacherId}
         AND sa.attempted_at >= CURRENT_DATE
+      ),
+      week_activities AS (
+        SELECT COUNT(*) AS count
+        FROM student_attempts sa
+        JOIN students s ON sa.student_id = s.id
+        WHERE s.teacher_id = ${teacherId}
+        AND sa.attempted_at >= NOW() - INTERVAL '7 days'
       )
       SELECT
         COUNT(DISTINCT ss.id) AS total_students,
@@ -794,9 +844,12 @@ export async function getTeacherDashboardStats(teacherId: string): Promise<Teach
         (SELECT COUNT(*) FROM teacher_alerts WHERE teacher_id = ${teacherId} AND is_read = false) AS unread_alerts,
         ROUND(AVG(ss.success_rate), 2) AS avg_performance,
         (SELECT count FROM today_activities) AS activities_today,
+        (SELECT count FROM week_activities) AS activities_week,
+        (SELECT COUNT(*) FROM activity_assignments WHERE teacher_id = ${teacherId}) AS total_assignments,
         COUNT(DISTINCT ss.id) FILTER (WHERE COALESCE(ss.success_rate, 0) < 50) AS needs_attention
       FROM student_stats ss
       CROSS JOIN today_activities
+      CROSS JOIN week_activities
     `
 
     const data = result.rows[0]
@@ -809,6 +862,9 @@ export async function getTeacherDashboardStats(teacherId: string): Promise<Teach
       unreadAlerts: parseInt(data.unread_alerts || 0),
       averageClassPerformance: parseFloat(data.avg_performance || 0),
       totalActivitiesCompletedToday: parseInt(data.activities_today || 0),
+      totalActivitiesToday: parseInt(data.activities_today || 0),
+      totalActivitiesWeek: parseInt(data.activities_week || 0),
+      totalAssignments: parseInt(data.total_assignments || 0),
       studentsNeedingAttention: parseInt(data.needs_attention || 0)
     }
   } catch (error) {

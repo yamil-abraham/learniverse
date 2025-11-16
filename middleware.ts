@@ -34,10 +34,6 @@ export default withAuth(
       return NextResponse.redirect(new URL('/login', req.url))
     }
 
-    if (path.startsWith('/avatar') && token?.role !== 'student') {
-      return NextResponse.redirect(new URL('/login', req.url))
-    }
-
     return NextResponse.next()
   },
   {
@@ -51,6 +47,7 @@ export default withAuth(
           path === '/register' ||
           path === '/' ||
           path.startsWith('/api/auth') ||
+          path.startsWith('/api/debug') ||
           path.startsWith('/_next') ||
           path.startsWith('/favicon')
         ) {

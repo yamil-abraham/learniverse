@@ -26,6 +26,15 @@ export function useTeacherVoice(options: UseTeacherVoiceOptions) {
   const [conversationHistory, setConversationHistory] = useState<ConversationMessage[]>([])
   const [error, setError] = useState<string | null>(null)
 
+  // Phase 2: Whiteboard and classroom state
+  const [showWhiteboard, setShowWhiteboard] = useState(false)
+  const [whiteboardProblem, setWhiteboardProblem] = useState<{
+    operation: 'addition' | 'subtraction' | 'multiplication' | 'division' | 'fractions'
+    operand1: number
+    operand2: number
+  } | null>(null)
+  const [classroomType, setClassroomType] = useState<'modern' | 'traditional' | 'none'>('modern')
+
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
@@ -237,6 +246,13 @@ export function useTeacherVoice(options: UseTeacherVoiceOptions) {
     setCurrentLipsync(response.lipsync)
     setCurrentAnimation(response.animation || 'TalkingOne')
 
+    // Phase 2: Handle whiteboard
+    if (response.showWhiteboard && response.mathProblem) {
+      console.log('📊 Showing whiteboard:', response.mathProblem)
+      setShowWhiteboard(true)
+      setWhiteboardProblem(response.mathProblem)
+    }
+
     // Create audio element
     const audio = new Audio(`data:audio/wav;base64,${response.audio}`)
     audioRef.current = audio
@@ -281,6 +297,21 @@ export function useTeacherVoice(options: UseTeacherVoiceOptions) {
     setError(null)
   }, [])
 
+  /**
+   * Clear whiteboard (Phase 2)
+   */
+  const clearWhiteboard = useCallback(() => {
+    setShowWhiteboard(false)
+    setWhiteboardProblem(null)
+  }, [])
+
+  /**
+   * Change classroom environment (Phase 2)
+   */
+  const changeClassroom = useCallback((type: 'modern' | 'traditional' | 'none') => {
+    setClassroomType(type)
+  }, [])
+
   return {
     // State
     isListening,
@@ -292,11 +323,20 @@ export function useTeacherVoice(options: UseTeacherVoiceOptions) {
     conversationHistory,
     error,
 
+    // Phase 2: Whiteboard state
+    showWhiteboard,
+    whiteboardProblem,
+    classroomType,
+
     // Actions
     startListening,
     stopListening,
     sendTextMessage,
     stopSpeaking,
     clearHistory,
+
+    // Phase 2: Actions
+    clearWhiteboard,
+    changeClassroom,
   }
 }

@@ -532,6 +532,9 @@ export interface TeacherDashboardStats {
   unreadAlerts: number
   averageClassPerformance: number
   totalActivitiesCompletedToday: number
+  totalActivitiesToday: number
+  totalActivitiesWeek: number
+  totalAssignments: number
   studentsNeedingAttention: number
 }
 

@@ -32,8 +32,8 @@ export function Teacher3D({
 
   // Load animations from separate file
   const animationPath = modelPath.includes('teacher1')
-    ? '/animations/animations_Nanami.glb'
-    : '/animations/animations_Naoki.glb'
+    ? '/animations/animations_Valentina.glb'
+    : '/animations/animations_Mateo.glb'
 
   const { animations } = useGLTF(animationPath) as any
 
@@ -229,5 +229,5 @@ export function Teacher3D({
 // Preload models and animations
 useGLTF.preload('/models/teachers/teacher1.glb')
 useGLTF.preload('/models/teachers/teacher2.glb')
-useGLTF.preload('/animations/animations_Nanami.glb')
-useGLTF.preload('/animations/animations_Naoki.glb')
+useGLTF.preload('/animations/animations_Valentina.glb')
+useGLTF.preload('/animations/animations_Mateo.glb')

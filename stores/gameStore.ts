@@ -9,6 +9,7 @@ import type { MathActivity, MathActivityType, DifficultyLevel, GameStats, Badge 
 
 interface ActivityResult {
   isCorrect: boolean
+  studentAnswer?: string // Student's submitted answer
   correctAnswer?: string
   pointsEarned: number
   experienceEarned: number

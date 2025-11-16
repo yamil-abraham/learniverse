@@ -100,8 +100,12 @@ export async function generateLipSync(audioPath: string): Promise<LipsyncData> {
 
 /**
  * Generate lip-sync from audio buffer
+ * Supports MP3, WAV, and other formats
  */
-export async function generateLipSyncFromBuffer(audioBuffer: Buffer): Promise<LipsyncData> {
+export async function generateLipSyncFromBuffer(
+  audioBuffer: Buffer,
+  format: 'mp3' | 'wav' = 'mp3'
+): Promise<LipsyncData> {
   try {
     // Save buffer to temp file
     const tempDir = path.join(process.cwd(), 'temp')
@@ -109,14 +113,17 @@ export async function generateLipSyncFromBuffer(audioBuffer: Buffer): Promise<Li
       fs.mkdirSync(tempDir, { recursive: true })
     }
 
-    const tempPath = path.join(tempDir, `lipsync-${Date.now()}.wav`)
+    // Use correct file extension based on format
+    const tempPath = path.join(tempDir, `lipsync-${Date.now()}.${format}`)
     fs.writeFileSync(tempPath, audioBuffer)
 
     try {
       const lipsyncData = await generateLipSync(tempPath)
 
       // Clean up temp file
-      fs.unlinkSync(tempPath)
+      if (fs.existsSync(tempPath)) {
+        fs.unlinkSync(tempPath)
+      }
 
       return lipsyncData
     } catch (error) {
