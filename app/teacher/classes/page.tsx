@@ -1,6 +1,7 @@
 /**
  * Teacher Classes List Page
  * Display and manage all classes
+ * Redesigned with v0 design system - Preserves ALL functionality
  */
 
 'use client'
@@ -8,9 +9,12 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { Plus, Users, GraduationCap, TrendingUp } from 'lucide-react'
+import { Plus, Users, GraduationCap, TrendingUp, Loader2 } from 'lucide-react'
 import { useTeacherDashboard } from '@/store/use-teacher-dashboard'
 import { DataTable, Column } from '@/components/teacher/DataTable'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import type { Class } from '@/types'
 
 export default function TeacherClassesPage() {
@@ -46,9 +50,9 @@ export default function TeacherClassesPage() {
       sortable: true,
       render: (cls) => (
         <div>
-          <div className="font-medium text-gray-900 dark:text-white">{cls.name}</div>
+          <div className="font-medium text-foreground">{cls.name}</div>
           {cls.description && (
-            <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-md">
+            <div className="text-sm text-muted-foreground truncate max-w-md">
               {cls.description}
             </div>
           )}
@@ -60,7 +64,7 @@ export default function TeacherClassesPage() {
       label: 'Grado',
       sortable: true,
       render: (cls) => (
-        <span className="text-gray-900 dark:text-gray-100">
+        <span className="text-foreground">
           {cls.grade ? `${cls.grade}°` : '-'}
         </span>
       )
@@ -69,7 +73,7 @@ export default function TeacherClassesPage() {
       key: 'schoolYear',
       label: 'Año Escolar',
       render: (cls) => (
-        <span className="text-gray-900 dark:text-gray-100">
+        <span className="text-foreground">
           {cls.schoolYear || '-'}
         </span>
       )
@@ -80,8 +84,8 @@ export default function TeacherClassesPage() {
       sortable: true,
       render: (cls) => (
         <div className="flex items-center gap-2">
-          <Users className="h-4 w-4 text-gray-400" />
-          <span className="font-medium text-gray-900 dark:text-white">
+          <Users className="h-4 w-4 text-muted-foreground" />
+          <span className="font-medium text-foreground">
             {cls.studentCount || 0}
           </span>
         </div>
@@ -92,13 +96,13 @@ export default function TeacherClassesPage() {
       label: 'Estado',
       render: (cls) => (
         cls.isActive ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-green-100 dark:bg-green-900/30 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:text-green-200">
+          <Badge variant="default" className="bg-success text-success-foreground">
             Activa
-          </span>
+          </Badge>
         ) : (
-          <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 dark:bg-gray-800 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:text-gray-200">
+          <Badge variant="secondary">
             Inactiva
-          </span>
+          </Badge>
         )
       )
     },
@@ -108,7 +112,7 @@ export default function TeacherClassesPage() {
       render: (cls) => {
         const date = new Date(cls.createdAt)
         return (
-          <span className="text-sm text-gray-600 dark:text-gray-400">
+          <span className="text-sm text-muted-foreground">
             {date.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' })}
           </span>
         )
@@ -118,10 +122,10 @@ export default function TeacherClassesPage() {
 
   if (status === 'loading') {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Cargando...</p>
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="size-12 animate-spin text-primary" />
+          <p className="text-muted-foreground">Cargando...</p>
         </div>
       </div>
     )
@@ -132,47 +136,44 @@ export default function TeacherClassesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-3xl font-bold text-foreground">
                 Mis Clases
               </h1>
-              <p className="mt-2 text-gray-600 dark:text-gray-400">
+              <p className="mt-2 text-muted-foreground">
                 {classes.length} {classes.length === 1 ? 'clase' : 'clases'}
               </p>
             </div>
-            <button
-              onClick={() => router.push('/teacher/classes/new')}
-              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
-            >
-              <Plus className="h-4 w-4" />
+            <Button onClick={() => router.push('/teacher/classes/new')}>
+              <Plus className="h-4 w-4 mr-2" />
               Nueva Clase
-            </button>
+            </Button>
           </div>
         </div>
 
         {/* Classes Table */}
         {classes.length === 0 && !classesLoading ? (
-          <div className="rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 p-12 text-center">
-            <GraduationCap className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">
+          <Card className="border-2 border-dashed border-muted-foreground/25 p-12 text-center">
+            <GraduationCap className="mx-auto h-12 w-12 text-muted-foreground" />
+            <h3 className="mt-4 text-lg font-medium text-foreground">
               No tienes clases aún
             </h3>
-            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            <p className="mt-2 text-sm text-muted-foreground">
               Comienza creando tu primera clase para organizar a tus estudiantes
             </p>
-            <button
+            <Button
               onClick={() => router.push('/teacher/classes/new')}
-              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
+              className="mt-6"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4 mr-2" />
               Crear Primera Clase
-            </button>
-          </div>
+            </Button>
+          </Card>
         ) : (
           <DataTable
             data={classes}
@@ -186,49 +187,55 @@ export default function TeacherClassesPage() {
         {/* Quick Stats */}
         {classes.length > 0 && (
           <div className="mt-8 grid gap-6 sm:grid-cols-3">
-            <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6">
-              <div className="flex items-center gap-3">
-                <div className="rounded-full bg-indigo-100 dark:bg-indigo-900/30 p-3">
-                  <GraduationCap className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+            <Card className="border-2">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-full bg-primary/10 p-3">
+                    <GraduationCap className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Clases Activas</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {classes.filter(c => c.isActive).length}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Clases Activas</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {classes.filter(c => c.isActive).length}
-                  </p>
-                </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6">
-              <div className="flex items-center gap-3">
-                <div className="rounded-full bg-green-100 dark:bg-green-900/30 p-3">
-                  <Users className="h-6 w-6 text-green-600 dark:text-green-400" />
+            <Card className="border-2">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-full bg-success/10 p-3">
+                    <Users className="h-6 w-6 text-success" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Estudiantes</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {classes.reduce((sum, c) => sum + (c.studentCount || 0), 0)}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Total Estudiantes</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {classes.reduce((sum, c) => sum + (c.studentCount || 0), 0)}
-                  </p>
-                </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6">
-              <div className="flex items-center gap-3">
-                <div className="rounded-full bg-blue-100 dark:bg-blue-900/30 p-3">
-                  <TrendingUp className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            <Card className="border-2">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-full bg-accent/10 p-3">
+                    <TrendingUp className="h-6 w-6 text-accent" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Promedio por Clase</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {classes.length > 0
+                        ? Math.round(classes.reduce((sum, c) => sum + (c.studentCount || 0), 0) / classes.length)
+                        : 0}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Promedio por Clase</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {classes.length > 0
-                      ? Math.round(classes.reduce((sum, c) => sum + (c.studentCount || 0), 0) / classes.length)
-                      : 0}
-                  </p>
-                </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         )}
       </div>
