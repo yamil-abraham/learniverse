@@ -45,7 +45,9 @@
       "Bash(git restore:*)",
       "Bash(dir:*)",
       "Bash(psql:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []

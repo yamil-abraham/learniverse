@@ -18,7 +18,7 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { classId: string } }
+  { params }: { params: Promise<{ classId: string }> }
 ) {
   try {
     // Check authentication
@@ -48,7 +48,7 @@ export async function POST(
       )
     }
 
-    const { classId } = params
+    const { classId } = await params
 
     // Get class
     const classData = await getClassById(classId)
@@ -102,7 +102,7 @@ export async function POST(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { classId: string } }
+  { params }: { params: Promise<{ classId: string }> }
 ) {
   try {
     // Check authentication
@@ -132,7 +132,7 @@ export async function DELETE(
       )
     }
 
-    const { classId } = params
+    const { classId } = await params
 
     // Get class
     const classData = await getClassById(classId)
