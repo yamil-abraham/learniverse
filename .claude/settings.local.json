@@ -42,7 +42,10 @@
       "Bash(npm run verify-voice:*)",
       "Bash(curl:*)",
       "Bash(timeout 5 cmd:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(dir:*)",
+      "Bash(psql:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []

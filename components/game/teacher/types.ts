@@ -116,14 +116,14 @@ export interface TeacherOverlayProps {
 export const AVAILABLE_TEACHERS: TeacherModel[] = [
   {
     id: 'teacher1',
-    name: 'Profesora Nanami',
+    name: 'Profesora Valentina',
     modelPath: '/models/teachers/teacher1.glb',
     voiceId: 'nova',
     description: 'Profesora alegre y motivadora',
   },
   {
     id: 'teacher2',
-    name: 'Profesor Naoki',
+    name: 'Profesor Mateo',
     modelPath: '/models/teachers/teacher2.glb',
     voiceId: 'onyx',
     description: 'Profesor paciente y didáctico',

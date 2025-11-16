@@ -37,13 +37,15 @@ export function isTabletDevice(): boolean {
   // Tablet patterns
   const tabletPatterns = [
     /iPad/i,
-    /Android/i && /tablet/i,
     /Kindle/i,
     /Silk/i,
     /PlayBook/i,
   ]
 
-  return tabletPatterns.some(pattern => userAgent.match(pattern))
+  // Special check for Android tablets
+  const isAndroidTablet = /Android/i.test(userAgent) && /tablet/i.test(userAgent)
+
+  return isAndroidTablet || tabletPatterns.some(pattern => userAgent.match(pattern))
 }
 
 /**
