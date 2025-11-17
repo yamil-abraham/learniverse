@@ -1,6 +1,7 @@
 /**
  * Teacher Students List Page
  * Display and manage all students with filtering and search
+ * Redesigned with v0 design system - Preserves ALL functionality
  */
 
 'use client'
@@ -8,10 +9,15 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { Search, Filter, X, Users } from 'lucide-react'
+import { Search, Filter, X, Users, Loader2, ArrowLeft } from 'lucide-react'
 import { useTeacherDashboard } from '@/store/use-teacher-dashboard'
 import { DataTable, Column } from '@/components/teacher/DataTable'
 import { PerformanceBadge } from '@/components/teacher/PerformanceBadge'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Card } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import type { StudentSummary } from '@/types'
 
 function TeacherStudentsContent() {
@@ -83,8 +89,8 @@ function TeacherStudentsContent() {
       sortable: true,
       render: (student) => (
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
-            <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400">
+          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+            <span className="text-sm font-medium text-primary">
               {student.name.charAt(0).toUpperCase()}
             </span>
           </div>
@@ -97,7 +103,7 @@ function TeacherStudentsContent() {
       label: 'Nivel',
       sortable: true,
       render: (student) => (
-        <span className="text-gray-900 dark:text-gray-100">Nivel {student.level}</span>
+        <span className="text-foreground">Nivel {student.level}</span>
       )
     },
     {
@@ -113,7 +119,7 @@ function TeacherStudentsContent() {
       label: 'Intentos',
       sortable: true,
       render: (student) => (
-        <span className="text-gray-900 dark:text-gray-100">{student.totalAttempts}</span>
+        <span className="text-foreground">{student.totalAttempts}</span>
       )
     },
     {
@@ -124,7 +130,7 @@ function TeacherStudentsContent() {
         const date = new Date(student.lastActive)
         const daysAgo = Math.floor((new Date().getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
         return (
-          <span className="text-sm text-gray-600 dark:text-gray-400">
+          <span className="text-sm text-muted-foreground">
             {daysAgo === 0 ? 'Hoy' : daysAgo === 1 ? 'Ayer' : `Hace ${daysAgo} días`}
           </span>
         )
@@ -135,13 +141,13 @@ function TeacherStudentsContent() {
       label: 'Estado',
       render: (student) => (
         student.needsAttention ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-red-100 dark:bg-red-900/30 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:text-red-200">
+          <Badge variant="destructive">
             Necesita atención
-          </span>
+          </Badge>
         ) : (
-          <span className="inline-flex items-center gap-1 rounded-full bg-green-100 dark:bg-green-900/30 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:text-green-200">
+          <Badge variant="default" className="bg-success text-success-foreground">
             En buen camino
-          </span>
+          </Badge>
         )
       )
     }
@@ -149,10 +155,10 @@ function TeacherStudentsContent() {
 
   if (status === 'loading') {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Cargando...</p>
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="size-12 animate-spin text-primary" />
+          <p className="text-muted-foreground">Cargando...</p>
         </div>
       </div>
     )
@@ -163,65 +169,76 @@ function TeacherStudentsContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <Button
+          variant="ghost"
+          onClick={() => router.push('/teacher')}
+          className="mb-6"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Volver
+        </Button>
+
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-3xl font-bold text-foreground">
                 Mis Estudiantes
               </h1>
-              <p className="mt-2 text-gray-600 dark:text-gray-400">
+              <p className="mt-2 text-muted-foreground">
                 {students.length} {students.length === 1 ? 'estudiante' : 'estudiantes'}
               </p>
             </div>
-            <button
+            <Button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              variant="outline"
             >
-              <Filter className="h-4 w-4" />
+              <Filter className="h-4 w-4 mr-2" />
               Filtros
               {hasActiveFilters && (
-                <span className="ml-1 rounded-full bg-indigo-600 px-2 py-0.5 text-xs text-white">
+                <Badge variant="secondary" className="ml-2">
                   {[searchQuery, selectedClass, selectedPerformance].filter(Boolean).length}
-                </span>
+                </Badge>
               )}
-            </button>
+            </Button>
           </div>
         </div>
 
         {/* Filters Panel */}
         {showFilters && (
-          <div className="mb-6 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6">
+          <Card className="mb-6 p-6">
             <div className="grid gap-4 md:grid-cols-3">
               {/* Search */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <Label htmlFor="search" className="mb-2">
                   Buscar
-                </label>
+                </Label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                  <input
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="search"
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                     placeholder="Nombre del estudiante..."
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 pl-10 pr-4 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 dark:focus:border-indigo-500"
+                    className="pl-10"
                   />
                 </div>
               </div>
 
               {/* Class Filter */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <Label htmlFor="class" className="mb-2">
                   Clase
-                </label>
+                </Label>
                 <select
+                  id="class"
                   value={selectedClass}
                   onChange={(e) => setSelectedClass(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2 text-sm text-gray-900 dark:text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 dark:focus:border-indigo-500"
+                  className="w-full rounded-lg border bg-background px-4 py-2 text-sm text-foreground"
                 >
                   <option value="">Todas las clases</option>
                   {classes.map((cls) => (
@@ -234,13 +251,14 @@ function TeacherStudentsContent() {
 
               {/* Performance Filter */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <Label htmlFor="performance" className="mb-2">
                   Rendimiento
-                </label>
+                </Label>
                 <select
+                  id="performance"
                   value={selectedPerformance}
                   onChange={(e) => setSelectedPerformance(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2 text-sm text-gray-900 dark:text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 dark:focus:border-indigo-500"
+                  className="w-full rounded-lg border bg-background px-4 py-2 text-sm text-foreground"
                 >
                   <option value="">Todos</option>
                   <option value="excelling">Excelente (≥80%)</option>
@@ -252,23 +270,17 @@ function TeacherStudentsContent() {
 
             {/* Filter Actions */}
             <div className="mt-4 flex items-center gap-3">
-              <button
-                onClick={handleSearch}
-                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
-              >
+              <Button onClick={handleSearch}>
                 Aplicar Filtros
-              </button>
+              </Button>
               {hasActiveFilters && (
-                <button
-                  onClick={handleClearFilters}
-                  className="flex items-center gap-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                >
-                  <X className="h-4 w-4" />
+                <Button onClick={handleClearFilters} variant="outline">
+                  <X className="h-4 w-4 mr-2" />
                   Limpiar
-                </button>
+                </Button>
               )}
             </div>
-          </div>
+          </Card>
         )}
 
         {/* Students Table */}
@@ -278,7 +290,7 @@ function TeacherStudentsContent() {
           loading={studentsLoading}
           onRowClick={(student) => router.push(`/teacher/students/${student.id}`)}
           emptyMessage="No se encontraron estudiantes"
-          rowClassName={(student) => student.needsAttention ? 'border-l-4 border-l-red-500' : ''}
+          rowClassName={(student) => student.needsAttention ? 'border-l-4 border-l-destructive' : ''}
         />
       </div>
     </div>
@@ -288,10 +300,10 @@ function TeacherStudentsContent() {
 export default function TeacherStudentsPage() {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Cargando...</p>
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="size-12 animate-spin text-primary" />
+          <p className="text-muted-foreground">Cargando...</p>
         </div>
       </div>
     }>

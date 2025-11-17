@@ -185,7 +185,6 @@ export function MathTeacher({ teacher = 'Valentina', ...props }: MathTeacherProp
   }, [loading])
 
   return (
-    // @ts-expect-error - R3F JSX element
     <group {...props} dispose={null} ref={group}>
       {loading && (
         <Html position-y={teacher === 'Valentina' ? 1.6 : 1.8}>
@@ -199,9 +198,7 @@ export function MathTeacher({ teacher = 'Valentina', ...props }: MathTeacherProp
           </div>
         </Html>
       )}
-      {/* @ts-expect-error - R3F JSX element */}
       <primitive object={scene} />
-      {/* @ts-expect-error - R3F JSX element */}
     </group>
   )
 }

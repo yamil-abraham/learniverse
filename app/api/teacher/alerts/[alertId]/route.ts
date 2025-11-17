@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic'
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { alertId: string } }
+  { params }: { params: Promise<{ alertId: string }> }
 ) {
   try {
     // Check authentication
@@ -43,7 +43,7 @@ export async function PUT(
       )
     }
 
-    const { alertId } = params
+    const { alertId } = await params
 
     // Mark alert as read
     // Note: We should verify the alert belongs to this teacher,

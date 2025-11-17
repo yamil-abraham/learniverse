@@ -1,6 +1,7 @@
 /**
  * Teacher Alerts Page
  * View and manage all alerts
+ * Redesigned with v0 design system - Preserves ALL functionality
  */
 
 'use client'
@@ -8,9 +9,12 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { Bell, BellOff, Check, CheckCheck, Filter } from 'lucide-react'
+import { Bell, BellOff, Check, CheckCheck, Filter, Loader2 } from 'lucide-react'
 import { useTeacherDashboard } from '@/store/use-teacher-dashboard'
 import { AlertBadge } from '@/components/teacher/AlertBadge'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import type { TeacherAlert } from '@/types'
 
 export default function TeacherAlertsPage() {
@@ -79,10 +83,10 @@ export default function TeacherAlertsPage() {
 
   if (status === 'loading') {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Cargando...</p>
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="size-12 animate-spin text-primary" />
+          <p className="text-muted-foreground">Cargando...</p>
         </div>
       </div>
     )
@@ -93,27 +97,24 @@ export default function TeacherAlertsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-3xl font-bold text-foreground">
                 Alertas
               </h1>
-              <p className="mt-2 text-gray-600 dark:text-gray-400">
+              <p className="mt-2 text-muted-foreground">
                 {unreadAlertsCount} sin leer • {filteredAlerts.length} total
               </p>
             </div>
             {unreadAlertsCount > 0 && (
-              <button
-                onClick={handleMarkAllAsRead}
-                className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
-              >
-                <CheckCheck className="h-4 w-4" />
+              <Button onClick={handleMarkAllAsRead} size="sm">
+                <CheckCheck className="h-4 w-4 mr-2" />
                 Marcar Todas como Leídas
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -121,33 +122,27 @@ export default function TeacherAlertsPage() {
         {/* Filters */}
         <div className="mb-6 flex flex-wrap items-center gap-3">
           <div className="flex gap-2">
-            <button
+            <Button
               onClick={() => setFilter('all')}
-              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                filter === 'all'
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-              }`}
+              variant={filter === 'all' ? 'default' : 'outline'}
+              size="sm"
             >
               Todas
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setFilter('unread')}
-              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                filter === 'unread'
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-              }`}
+              variant={filter === 'unread' ? 'default' : 'outline'}
+              size="sm"
             >
-              <Bell className="h-4 w-4" />
+              <Bell className="h-4 w-4 mr-2" />
               Sin Leer {unreadAlertsCount > 0 && `(${unreadAlertsCount})`}
-            </button>
+            </Button>
           </div>
 
           <select
             value={selectedSeverity}
             onChange={(e) => setSelectedSeverity(e.target.value as any)}
-            className="rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2 text-sm text-gray-900 dark:text-white"
+            className="rounded-lg border bg-background px-4 py-2 text-sm text-foreground"
           >
             <option value="all">Todas las prioridades</option>
             <option value="high">Alta prioridad</option>
@@ -158,21 +153,21 @@ export default function TeacherAlertsPage() {
 
         {/* Alerts List */}
         {alertsLoading ? (
-          <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-8 text-center">
-            <p className="text-gray-500 dark:text-gray-400">Cargando alertas...</p>
-          </div>
+          <Card className="p-8 text-center">
+            <p className="text-muted-foreground">Cargando alertas...</p>
+          </Card>
         ) : filteredAlerts.length === 0 ? (
-          <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-12 text-center">
-            <BellOff className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">
+          <Card className="p-12 text-center">
+            <BellOff className="mx-auto h-12 w-12 text-muted-foreground" />
+            <h3 className="mt-4 text-lg font-medium text-foreground">
               No hay alertas
             </h3>
-            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            <p className="mt-2 text-sm text-muted-foreground">
               {filter === 'unread'
                 ? 'No tienes alertas sin leer en este momento'
                 : 'No hay alertas para mostrar'}
             </p>
-          </div>
+          </Card>
         ) : (
           <div className="space-y-3">
             {filteredAlerts.map((alert) => {
@@ -181,12 +176,12 @@ export default function TeacherAlertsPage() {
                                    'low'
 
               return (
-                <div
+                <Card
                   key={alert.id}
-                  className={`rounded-lg border bg-white dark:bg-gray-900 p-6 transition-all ${
+                  className={`p-6 transition-all ${
                     alert.isRead
-                      ? 'border-gray-200 dark:border-gray-700 opacity-75'
-                      : 'border-indigo-200 dark:border-indigo-800 shadow-md'
+                      ? 'opacity-75'
+                      : 'border-primary shadow-md'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-4">
@@ -194,21 +189,21 @@ export default function TeacherAlertsPage() {
                       <div className="flex items-start gap-3">
                         <AlertBadge severity={alertSeverity} size="md" />
                         {!alert.isRead && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 dark:bg-indigo-900/30 px-2 py-0.5 text-xs font-medium text-indigo-800 dark:text-indigo-200">
+                          <Badge variant="secondary">
                             Nueva
-                          </span>
+                          </Badge>
                         )}
                       </div>
 
-                      <h3 className="mt-3 text-lg font-semibold text-gray-900 dark:text-white">
+                      <h3 className="mt-3 text-lg font-semibold text-foreground">
                         {alert.title}
                       </h3>
 
-                      <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                      <p className="mt-2 text-sm text-muted-foreground">
                         {alert.message}
                       </p>
 
-                      <div className="mt-3 flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                      <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
                         <span>Estudiante: <span className="font-medium">{alert.studentName}</span></span>
                         <span>•</span>
                         <span>
@@ -225,23 +220,24 @@ export default function TeacherAlertsPage() {
 
                     <div className="flex flex-col gap-2">
                       {!alert.isRead && (
-                        <button
+                        <Button
                           onClick={() => handleMarkAsRead(alert.id)}
-                          className="flex items-center gap-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                          variant="outline"
+                          size="sm"
                         >
-                          <Check className="h-4 w-4" />
+                          <Check className="h-4 w-4 mr-2" />
                           Marcar leída
-                        </button>
+                        </Button>
                       )}
-                      <button
+                      <Button
                         onClick={() => router.push(`/teacher/students/${alert.studentId}`)}
-                        className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
+                        size="sm"
                       >
                         Ver Estudiante
-                      </button>
+                      </Button>
                     </div>
                   </div>
-                </div>
+                </Card>
               )
             })}
           </div>

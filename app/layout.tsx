@@ -1,9 +1,14 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Fredoka } from 'next/font/google'
 import './globals.css'
 import SessionProvider from '@/components/providers/SessionProvider'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const fredoka = Fredoka({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-sans',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'Learniverse - Plataforma Educativa Gamificada',
@@ -17,8 +22,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es">
-      <body className={`${inter.variable} antialiased`}>
+    <html lang="es" className={fredoka.variable}>
+      <body className="font-sans antialiased">
         <SessionProvider>
           {children}
         </SessionProvider>

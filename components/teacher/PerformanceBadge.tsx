@@ -1,6 +1,7 @@
 /**
  * Performance Badge Component
  * For displaying student performance levels
+ * Updated with v0 design system semantic colors
  */
 
 import React from 'react'
@@ -26,27 +27,27 @@ export function PerformanceBadge({ successRate, showTrend = false, trend = 'stab
   const levelConfig = {
     excellent: {
       label: 'Excelente',
-      bgColor: 'bg-green-100 dark:bg-green-900/30',
-      textColor: 'text-green-800 dark:text-green-200',
-      borderColor: 'border-green-200 dark:border-green-800'
+      bgColor: 'bg-success/10',
+      textColor: 'text-success',
+      borderColor: 'border-success/20'
     },
     good: {
       label: 'Bien',
-      bgColor: 'bg-blue-100 dark:bg-blue-900/30',
-      textColor: 'text-blue-800 dark:text-blue-200',
-      borderColor: 'border-blue-200 dark:border-blue-800'
+      bgColor: 'bg-accent/10',
+      textColor: 'text-accent',
+      borderColor: 'border-accent/20'
     },
     average: {
       label: 'Regular',
-      bgColor: 'bg-yellow-100 dark:bg-yellow-900/30',
-      textColor: 'text-yellow-800 dark:text-yellow-200',
-      borderColor: 'border-yellow-200 dark:border-yellow-800'
+      bgColor: 'bg-secondary/10',
+      textColor: 'text-secondary',
+      borderColor: 'border-secondary/20'
     },
     struggling: {
       label: 'Necesita Apoyo',
-      bgColor: 'bg-red-100 dark:bg-red-900/30',
-      textColor: 'text-red-800 dark:text-red-200',
-      borderColor: 'border-red-200 dark:border-red-800'
+      bgColor: 'bg-destructive/10',
+      textColor: 'text-destructive',
+      borderColor: 'border-destructive/20'
     }
   }
 

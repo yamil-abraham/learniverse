@@ -1,6 +1,7 @@
 /**
  * Formulario de Registro
  * Componente para registro de nuevos usuarios (estudiantes y profesores)
+ * Redesigned with shadcn/ui - Preserves all authentication logic
  */
 
 'use client'
@@ -9,6 +10,36 @@ import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { UserRole } from '@/types'
+import {
+  Loader2,
+  UserPlus,
+  Mail,
+  Lock,
+  User,
+  GraduationCap,
+  School,
+  CheckCircle2
+} from 'lucide-react'
+
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 export default function RegisterForm() {
   const router = useRouter()
@@ -32,6 +63,20 @@ export default function RegisterForm() {
     setFormData((prev) => ({
       ...prev,
       [name]: name === 'grade' ? parseInt(value) : value,
+    }))
+  }
+
+  const handleRoleChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      role: value as UserRole,
+    }))
+  }
+
+  const handleGradeChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      grade: parseInt(value),
     }))
   }
 
@@ -123,210 +168,231 @@ export default function RegisterForm() {
   }
 
   return (
-    <div className="w-full max-w-md">
-      <form onSubmit={handleSubmit} className="bg-white shadow-lg rounded-lg px-8 pt-6 pb-8 mb-4">
-        <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
-          Crear Cuenta
-        </h2>
+    <Card className="w-full max-w-md shadow-xl">
+      <CardHeader className="space-y-1 text-center">
+        <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-secondary/10">
+          <UserPlus className="size-6 text-secondary" />
+        </div>
+        <CardTitle className="text-3xl font-bold">Crear Cuenta</CardTitle>
+        <CardDescription className="text-base">
+          Completa tus datos para unirte a Learniverse
+        </CardDescription>
+      </CardHeader>
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-            {error}
+      <form onSubmit={handleSubmit}>
+        <CardContent className="space-y-4">
+          {error && (
+            <Alert variant="destructive" className="animate-scale-in">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {success && (
+            <Alert className="border-success bg-success/10 text-success animate-scale-in">
+              <CheckCircle2 className="size-4" />
+              <AlertDescription>
+                ¡Registro exitoso! Redirigiendo al login...
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Nombre */}
+          <div className="space-y-2">
+            <Label htmlFor="name" className="text-sm font-semibold">
+              Nombre completo
+            </Label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="name"
+                name="name"
+                type="text"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Tu nombre"
+                disabled={isLoading}
+                required
+                aria-label="Nombre completo"
+                className="pl-10"
+              />
+            </div>
           </div>
-        )}
 
-        {success && (
-          <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
-            ¡Registro exitoso! Redirigiendo al login...
+          {/* Email */}
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-sm font-semibold">
+              Email
+            </Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="tu@email.com"
+                disabled={isLoading}
+                required
+                aria-label="Email"
+                className="pl-10"
+              />
+            </div>
           </div>
-        )}
 
-        {/* Nombre */}
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
-            Nombre completo
-          </label>
-          <input
-            id="name"
-            name="name"
-            type="text"
-            value={formData.name}
-            onChange={handleChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Tu nombre"
-            disabled={isLoading}
-            required
-            aria-label="Nombre completo"
-          />
-        </div>
-
-        {/* Email */}
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="tu@email.com"
-            disabled={isLoading}
-            required
-            aria-label="Email"
-          />
-        </div>
-
-        {/* Rol */}
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="role">
-            Tipo de cuenta
-          </label>
-          <select
-            id="role"
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
-            disabled={isLoading}
-            required
-            aria-label="Tipo de cuenta"
-          >
-            <option value="student">Estudiante</option>
-            <option value="teacher">Profesor/a</option>
-          </select>
-        </div>
-
-        {/* Campo específico para estudiantes: Grado */}
-        {formData.role === 'student' && (
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="grade">
-              Grado escolar
-            </label>
-            <select
-              id="grade"
-              name="grade"
-              value={formData.grade}
-              onChange={handleChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
+          {/* Tipo de cuenta */}
+          <div className="space-y-2">
+            <Label htmlFor="role" className="text-sm font-semibold">
+              Tipo de cuenta
+            </Label>
+            <Select
+              value={formData.role}
+              onValueChange={handleRoleChange}
               disabled={isLoading}
-              required
-              aria-label="Grado escolar"
             >
-              <option value={4}>4º Grado</option>
-              <option value={5}>5º Grado</option>
-            </select>
+              <SelectTrigger id="role" aria-label="Tipo de cuenta">
+                <SelectValue placeholder="Selecciona tu rol" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="student">
+                  <div className="flex items-center gap-2">
+                    <GraduationCap className="size-4" />
+                    <span>Estudiante</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="teacher">
+                  <div className="flex items-center gap-2">
+                    <School className="size-4" />
+                    <span>Profesor/a</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        )}
 
-        {/* Campo específico para profesores: Escuela (opcional) */}
-        {formData.role === 'teacher' && (
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="school">
-              Escuela (opcional)
-            </label>
-            <input
-              id="school"
-              name="school"
-              type="text"
-              value={formData.school}
-              onChange={handleChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Nombre de tu escuela"
-              disabled={isLoading}
-              aria-label="Escuela"
-            />
+          {/* Grado (solo para estudiantes) */}
+          {formData.role === 'student' && (
+            <div className="space-y-2 animate-scale-in">
+              <Label htmlFor="grade" className="text-sm font-semibold">
+                Grado escolar
+              </Label>
+              <Select
+                value={formData.grade.toString()}
+                onValueChange={handleGradeChange}
+                disabled={isLoading}
+              >
+                <SelectTrigger id="grade" aria-label="Grado escolar">
+                  <SelectValue placeholder="Selecciona tu grado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="4">4º Grado</SelectItem>
+                  <SelectItem value="5">5º Grado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Escuela (solo para profesores, opcional) */}
+          {formData.role === 'teacher' && (
+            <div className="space-y-2 animate-scale-in">
+              <Label htmlFor="school" className="text-sm font-semibold">
+                Escuela{' '}
+                <span className="text-muted-foreground font-normal">(opcional)</span>
+              </Label>
+              <div className="relative">
+                <School className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="school"
+                  name="school"
+                  type="text"
+                  value={formData.school}
+                  onChange={handleChange}
+                  placeholder="Nombre de tu escuela"
+                  disabled={isLoading}
+                  aria-label="Escuela"
+                  className="pl-10"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Contraseña */}
+          <div className="space-y-2">
+            <Label htmlFor="password" className="text-sm font-semibold">
+              Contraseña
+            </Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Mínimo 6 caracteres"
+                disabled={isLoading}
+                required
+                aria-label="Contraseña"
+                className="pl-10"
+              />
+            </div>
           </div>
-        )}
 
-        {/* Contraseña */}
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-            Contraseña
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            value={formData.password}
-            onChange={handleChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Mínimo 6 caracteres"
-            disabled={isLoading}
-            required
-            aria-label="Contraseña"
-          />
-        </div>
+          {/* Confirmar contraseña */}
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword" className="text-sm font-semibold">
+              Confirmar contraseña
+            </Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="Repite tu contraseña"
+                disabled={isLoading}
+                required
+                aria-label="Confirmar contraseña"
+                className="pl-10"
+              />
+            </div>
+          </div>
+        </CardContent>
 
-        {/* Confirmar contraseña */}
-        <div className="mb-6">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="confirmPassword"
-          >
-            Confirmar contraseña
-          </label>
-          <input
-            id="confirmPassword"
-            name="confirmPassword"
-            type="password"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Repite tu contraseña"
-            disabled={isLoading}
-            required
-            aria-label="Confirmar contraseña"
-          />
-        </div>
-
-        <div className="flex items-center justify-between">
-          <button
+        <CardFooter className="flex flex-col gap-4">
+          <Button
             type="submit"
             disabled={isLoading || success}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50 disabled:cursor-not-allowed w-full"
+            className="w-full h-11 text-base font-semibold"
+            size="lg"
+            variant="default"
           >
             {isLoading ? (
-              <span className="flex items-center justify-center">
-                <svg
-                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" />
                 Registrando...
-              </span>
+              </>
             ) : (
-              'Registrarse'
+              <>
+                <UserPlus className="mr-2 size-4" />
+                Registrarse
+              </>
             )}
-          </button>
-        </div>
+          </Button>
 
-        <div className="mt-4 text-center">
-          <p className="text-gray-600 text-sm">
+          <div className="text-center text-sm text-muted-foreground">
             ¿Ya tienes una cuenta?{' '}
-            <Link href="/login" className="text-blue-500 hover:text-blue-700 font-semibold">
+            <Link
+              href="/login"
+              className="font-semibold text-primary underline-offset-4 hover:underline"
+            >
               Inicia sesión aquí
             </Link>
-          </p>
-        </div>
+          </div>
+        </CardFooter>
       </form>
-    </div>
+    </Card>
   )
 }

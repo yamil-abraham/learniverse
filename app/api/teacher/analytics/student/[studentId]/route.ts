@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { studentId: string } }
+  { params }: { params: Promise<{ studentId: string }> }
 ) {
   try {
     // Check authentication
@@ -47,7 +47,7 @@ export async function GET(
       )
     }
 
-    const { studentId } = params
+    const { studentId } = await params
 
     // Get student and verify teacher owns this student
     const student = await getStudentById(studentId)
