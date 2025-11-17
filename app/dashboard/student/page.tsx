@@ -232,7 +232,9 @@ export default function StudentDashboard() {
                   </CardDescription>
                 </div>
                 <Badge variant="secondary" className="text-lg px-3 py-1">
-                  {Math.round(recommendation.confidence * 100)}% confianza
+                  {recommendation.confidence && !isNaN(recommendation.confidence)
+                    ? `${Math.round(recommendation.confidence * 100)}% confianza`
+                    : 'Alta confianza'}
                 </Badge>
               </div>
             </CardHeader>

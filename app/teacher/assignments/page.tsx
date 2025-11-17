@@ -9,7 +9,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { Plus, Calendar, CheckCircle, Clock, Loader2 } from 'lucide-react'
+import { Plus, Calendar, CheckCircle, Clock, Loader2, ArrowLeft } from 'lucide-react'
 import { useTeacherDashboard } from '@/store/use-teacher-dashboard'
 import { DataTable, Column } from '@/components/teacher/DataTable'
 import { Button } from '@/components/ui/button'
@@ -181,6 +181,15 @@ export default function TeacherAssignmentsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <Button
+          variant="ghost"
+          onClick={() => router.push('/teacher')}
+          className="mb-6"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Volver
+        </Button>
+
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">

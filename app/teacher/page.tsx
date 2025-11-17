@@ -8,7 +8,7 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import {
   Users,
   UserCheck,
@@ -18,7 +18,8 @@ import {
   Calendar,
   Plus,
   ArrowRight,
-  Loader2
+  Loader2,
+  LogOut
 } from 'lucide-react'
 import { useTeacherDashboard } from '@/store/use-teacher-dashboard'
 import { DashboardCard } from '@/components/teacher/DashboardCard'
@@ -114,6 +115,14 @@ export default function TeacherDashboardPage() {
               >
                 <Calendar className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline">Nueva Tarea</span>
+              </Button>
+              <Button
+                onClick={() => signOut({ callbackUrl: '/login' })}
+                variant="ghost"
+                size="sm"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Cerrar Sesión</span>
               </Button>
             </div>
           </div>

@@ -291,7 +291,7 @@ export function MathBlackboard({ classroom = 'default', studentName }: MathBlack
       ) : null}
 
       {/* Exercise Display (on blackboard) */}
-      {currentExercise && messages.length === 0 ? (
+      {currentExercise ? (
         <div className="h-full w-full grid place-content-center text-center px-12">
           <div className="bg-gradient-to-br from-blue-500/40 to-purple-500/40 backdrop-blur-sm rounded-3xl p-12 border-4 border-white/30 max-w-5xl mx-auto">
             {/* Exercise Question */}
