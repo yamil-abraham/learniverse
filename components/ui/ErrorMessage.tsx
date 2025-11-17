@@ -20,25 +20,25 @@ export default function ErrorMessage({
 }: ErrorMessageProps) {
   const severityStyles = {
     error: {
-      bg: 'bg-red-50 dark:bg-red-900/20',
-      border: 'border-red-200 dark:border-red-800',
-      icon: 'text-red-600 dark:text-red-400',
-      title: 'text-red-900 dark:text-red-200',
-      text: 'text-red-700 dark:text-red-300'
+      bg: 'bg-destructive/10',
+      border: 'border-destructive/20',
+      icon: 'text-destructive',
+      title: 'text-destructive',
+      text: 'text-destructive'
     },
     warning: {
-      bg: 'bg-yellow-50 dark:bg-yellow-900/20',
-      border: 'border-yellow-200 dark:border-yellow-800',
-      icon: 'text-yellow-600 dark:text-yellow-400',
-      title: 'text-yellow-900 dark:text-yellow-200',
-      text: 'text-yellow-700 dark:text-yellow-300'
+      bg: 'bg-secondary/10',
+      border: 'border-secondary/20',
+      icon: 'text-secondary',
+      title: 'text-secondary',
+      text: 'text-secondary'
     },
     info: {
-      bg: 'bg-blue-50 dark:bg-blue-900/20',
-      border: 'border-blue-200 dark:border-blue-800',
-      icon: 'text-blue-600 dark:text-blue-400',
-      title: 'text-blue-900 dark:text-blue-200',
-      text: 'text-blue-700 dark:text-blue-300'
+      bg: 'bg-accent/10',
+      border: 'border-accent/20',
+      icon: 'text-accent',
+      title: 'text-accent',
+      text: 'text-accent'
     }
   }
 
@@ -80,7 +80,7 @@ export default function ErrorMessage({
             <div className="mt-4">
               <button
                 onClick={onRetry}
-                className="rounded-md bg-red-100 px-3 py-2 text-sm font-medium text-red-800 transition-colors hover:bg-red-200 dark:bg-red-800/50 dark:text-red-200 dark:hover:bg-red-800"
+                className="rounded-md bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/20"
               >
                 Intentar de nuevo
               </button>
@@ -104,18 +104,18 @@ interface EmptyStateProps {
 
 export function EmptyState({ title, description, action, icon }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-12 text-center dark:border-gray-700 dark:bg-gray-800/50">
+    <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-muted p-12 text-center">
       {icon && (
-        <div className="mb-4 text-gray-400 dark:text-gray-600">
+        <div className="mb-4 text-muted-foreground">
           {icon}
         </div>
       )}
-      <h3 className="mb-2 text-lg font-medium text-gray-900 dark:text-gray-100">{title}</h3>
-      {description && <p className="mb-4 max-w-md text-sm text-gray-600 dark:text-gray-400">{description}</p>}
+      <h3 className="mb-2 text-lg font-medium text-foreground">{title}</h3>
+      {description && <p className="mb-4 max-w-md text-sm text-muted-foreground">{description}</p>}
       {action && (
         <button
           onClick={action.onClick}
-          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
         >
           {action.label}
         </button>
