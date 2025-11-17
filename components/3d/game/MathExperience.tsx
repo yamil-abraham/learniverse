@@ -125,11 +125,9 @@ export function MathExperience() {
 
         {/* Environment Lighting */}
         <Environment preset="sunset" />
-        {/* @ts-expect-error - R3F JSX element */}
         <ambientLight intensity={0.8} color="pink" />
 
         {/* Classroom Model */}
-        {/* @ts-expect-error - R3F JSX element */}
         <primitive
           object={useGLTF(`/models/environments/classroom${classroom === 'default' ? '1' : '2'}.glb`).scene}
           {...itemPlacement[classroom].classroom}
