@@ -17,6 +17,20 @@ Learniverse is a gamified educational platform for teaching mathematics to stude
 
 **Deployed at:** https://learniverse.vercel.app
 
+## Quick Reference
+
+**Fresh database setup (run in order):**
+```bash
+npm run db:init-activities && npm run db:init-ai && npm run db:init-teacher && npm run db:init-teacher-voice && npm run db:seed-activities
+```
+
+**Common development workflow:**
+```bash
+npm run type-check    # Check types before committing
+npm run build         # Verify production build works
+npm run dev           # Start development server
+```
+
 ## Development Commands
 
 ### Core Commands
@@ -24,12 +38,14 @@ Learniverse is a gamified educational platform for teaching mathematics to stude
 npm run dev              # Start development server (localhost:3000)
 npm run build            # Build for production
 npm run start            # Start production server
-npm run lint             # Run ESLint
+npm run lint             # Run ESLint (disabled during builds, see note below)
 npm run type-check       # Run TypeScript type checking without building
 ```
 
+**Note:** ESLint is configured but **disabled during builds** (`ignoreDuringBuilds: true` in `next.config.mjs`) due to version conflicts between Next.js 15+ and ESLint. Use `npm run lint` manually during development.
+
 ### Database Initialization
-These scripts must be run in order for a fresh database setup:
+These scripts **must be run in order** for a fresh database setup:
 ```bash
 npm run db:init-activities       # Initialize activities schema and tables
 npm run db:init-ai              # Initialize AI-related tables (hints, feedback)
@@ -77,25 +93,35 @@ The application uses **Vercel Postgres** with four main schema files:
   - `executeDelete()` - DELETE returning row count
   - `executeTransaction()` - Execute multiple queries in transaction
   - `testConnection()` - Verify database connectivity
-- `lib/db/queries.ts` - Student-related queries
-- `lib/db/teacher-queries.ts` - Teacher dashboard queries
+- `lib/db/queries.ts` - Student-related queries (progress, stats, attempts)
+- `lib/db/teacher-queries.ts` - Teacher dashboard queries (analytics, student management)
+- `lib/db/teacher-voice-queries.ts` - Teacher voice interaction queries (conversations, speech logs)
 
 ### State Management (Zustand)
 Located in `stores/`:
 - `gameStore.ts` - Game state, current activity, timer, hints, AI feedback, session stats
 - `avatarStore.ts` - Avatar customization (body type, skin color, hair, clothes, accessories)
+- `teacherStore.ts` - Teacher dashboard state (selected student, filters, view modes)
 
 ### Key API Routes Structure
 ```
 app/api/
 ├── activities/      # Fetch math activities by type/difficulty
 ├── ai/             # OpenAI integration (hints, feedback, difficulty adaptation)
-├── auth/           # NextAuth handlers
+├── auth/           # NextAuth handlers ([...nextauth])
 ├── avatar/         # Avatar customization persistence
+├── debug/          # Debug endpoints (development only)
 ├── health/         # Health check endpoint
 ├── stats/          # Student statistics and progress
-└── teacher/        # Teacher dashboard data
+├── student/        # Student-specific operations
+├── teacher/        # Teacher dashboard data (analytics, student management)
+└── teacher-voice/  # Teacher voice interactions (TTS, STT, conversations)
 ```
+
+**Important API Notes:**
+- All AI and speech routes have 60s timeout (increased from default 30s)
+- CORS is enabled for all API routes
+- Authentication required for all routes except `/api/auth/*`, `/api/health`, and `/api/debug/*`
 
 ### 3D System (React Three Fiber)
 Located in `components/3d/`:
@@ -135,6 +161,7 @@ Located in `lib/ai/`:
 - `stt.ts` - Speech-to-text using OpenAI Whisper API (language: es)
 - `lip-sync.ts` - Lip-sync animation controller for 3D teacher
 - `viseme-mapping.ts` - Phoneme-to-viseme mapping for realistic mouth movements
+- `rhubarb/` - Rhubarb Lip Sync executable and utilities for phoneme extraction
 
 **AI Features:**
 - Progressive hints (3 levels)
@@ -209,11 +236,12 @@ See `.env.example` for complete list. Critical variables:
 - `NEXT_PUBLIC_MAX_AUDIO_DURATION` - Max audio duration in seconds (default: 120)
 
 ### Next.js Configuration (`next.config.mjs`)
-- ESLint disabled during builds (`ignoreDuringBuilds: true`) due to version conflict
 - TypeScript checking enabled (`ignoreBuildErrors: false`)
-- Three.js packages transpiled
-- Webpack configured for canvas externals
+- Three.js packages transpiled: `three`, `@react-three/fiber`, `@react-three/drei`
+- Webpack configured for canvas externals (required for Three.js SSR compatibility)
 - Remote image patterns enabled for all hosts
+- Turbopack enabled for Next.js 15+ compatibility
+- React strict mode enabled
 
 ### Vercel Deployment (`vercel.json`)
 - API routes have 30s timeout (AI and speech routes: 60s)
@@ -254,8 +282,42 @@ See `.env.example` for complete list. Critical variables:
 5. Teacher Dashboard ✅
 6. Integration, Testing & Deployment ✅
 
+## Troubleshooting Common Issues
+
+**Database Connection Errors:**
+```bash
+# Test database connection
+npm run verify-vercel
+# Re-initialize database in order
+npm run db:init-activities && npm run db:init-ai && npm run db:init-teacher && npm run db:init-teacher-voice
+```
+
+**3D Rendering Issues:**
+- Ensure all 3D components are wrapped in `dynamic(() => import(...), { ssr: false })`
+- Check browser console for WebGL errors
+- Verify Three.js packages are listed in `transpilePackages` in `next.config.mjs`
+
+**Build Failures:**
+```bash
+# Clear Next.js cache and rebuild
+rm -rf .next
+npm run type-check  # Check for TypeScript errors first
+npm run build
+```
+
+**OpenAI API Issues:**
+- Verify `OPENAI_API_KEY` is set in `.env.local`
+- Check API rate limits in `lib/ai/rate-limiter.ts`
+- Review cached responses in `lib/ai/cache.ts`
+
+**Authentication Issues:**
+- Ensure `NEXTAUTH_SECRET` is set (generate with: `openssl rand -base64 32`)
+- Verify `NEXTAUTH_URL` matches your current environment
+- Check middleware configuration in `middleware.ts`
+
 ## Additional Documentation
-- `INSTALLATION.md` - Complete setup guide
+- `INSTALACION.md` - Guía completa de instalación (Spanish, most detailed)
+- `INSTALLATION.md` - Complete setup guide (English)
 - `README.md` - Project overview and features
 - `CLAUDE_CONTEXT.md` - Original TFG context
 - `docs/DEPLOYMENT_CHECKLIST.md` - Deployment steps
