@@ -1,6 +1,6 @@
-# Guía de Despliegue Local - Learniverse
+# Guía de Instalación - Learniverse
 
-Esta guía detalla paso a paso cómo configurar y ejecutar Learniverse en tu entorno de desarrollo local.
+Esta guía detalla paso a paso cómo instalar, configurar y ejecutar Learniverse en tu entorno de desarrollo local.
 
 ## 📋 Tabla de Contenidos
 
@@ -568,7 +568,6 @@ Si encuentras problemas no cubiertos en esta guía:
 2. **Consulta los archivos de documentación del proyecto:**
    - `README.md` - Descripción general del proyecto
    - `INSTALLATION.md` - Guía básica de instalación
-   - `CLAUDE.md` - Guía de desarrollo para Claude Code
 
 3. **Reporta un issue en GitHub:**
    - https://github.com/yamil-abraham/learniverse/issues

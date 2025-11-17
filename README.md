@@ -2,6 +2,15 @@
 
 Plataforma educativa gamificada con avatares 3D para la enseñanza de matemática a estudiantes de 9-11 años, con sistema de aprendizaje adaptativo impulsado por IA.
 
+---
+
+## 📖 [Guía Completa de Instalación](./INSTALACION.md)
+
+**¿Quieres instalar y ejecutar este proyecto localmente?**
+👉 **[Lee la guía completa de instalación aquí](./INSTALACION.md)** con instrucciones paso a paso, configuración de variables de entorno, inicialización de base de datos y solución de problemas comunes.
+
+---
+
 ## 🎓 Trabajo Final de Grado (TFG)
 **Autor:** Abraham Yamil
 **Carrera:** Ingeniería en Inteligencia Artificial y Robótica
@@ -69,7 +78,7 @@ learniverse/
 
 ## 📦 Instalación
 
-Ver la [Guía de Instalación Completa](./INSTALLATION.md) para instrucciones detalladas.
+Ver la [Guía de Instalación Completa](./INSTALACION.md) para instrucciones detalladas.
 
 ### Inicio Rápido
 
